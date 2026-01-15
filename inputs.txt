@@ -1,0 +1,56 @@
+
+craete login page 
+
+handle : username and pass auth 
+
+then redirect to the mfa page 
+if new user then show qr scanner image 
+else : 
+show form to enter totp value 
+vertify the totp value 
+
+then redirect to the dashboard page 
+
+auth token 
+
+
+auth token verfy for all features 
+
+list all the featires and access to the user based on the policy and the access 
+- create file
+- edit file 
+- share file 
+- fire cmds : like start the docker etc 
+maintain the base.html for layout 
+
+
+ AuditLog.objects.create(
+            user_profile=self.user_profile,
+            action=f"Access {self.app_resource.name}",
+            ip_address=self.ip_address,
+            status=self.status,
+        )
+whenever updatefile button post request is triggered then log this action in database.
+similarly do for all the features present in dashboard.
+create an UI for Audit log where all the activities which are performing on dashboard should be recorded under ztna template create system. view profile.html , login , register.html (newusername password) under syustem folder.
+multiple username login system.
+
+
+#decidetrustpolicies and trustscore inside UI for devices
+#Make trustbroker and policy engine
+make hosting. django project on python anywhere.
+#12 nov
+make eye button in front of password
+when new user register then show qr code and then after login then form asks for totp only.
+register new user
+in create file add new file button. also add margin and add word wrap.
+ fix css for edit file
+  open access can access through mobile. 
+  http://127.0.0.1:8000/ztna/logs/ : success status ui modification . increase width screen
+django admin dashboard only access to developer means only to admin.
+
+
+
+AppSrv
+Riskbased mfa
+POlicyenofrcer

@@ -1,0 +1,42 @@
+{% extends 'mfa/base.html' %}
+
+{% block title %}MFA Setup{% endblock %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-6 text-center text-blue-400">Multi-Factor Authentication Setup</h1>
+
+{% if messages %}
+  <div class="mb-4">
+    {% for message in messages %}
+      <div class="p-3 mb-2 rounded text-center 
+                  {% if message.tags == 'success' %}bg-green-700{% else %}bg-red-700{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="flex flex-col items-center space-y-6">
+  <div class="flex flex-col items-center">
+    <h2 class="text-lg font-semibold text-gray-200 mb-2">Scan this QR Code in Google Authenticator</h2>
+    <img src="data:image/png;base64,{{ qr_code }}" alt="MFA QR Code" class="rounded-lg shadow-md border-2 border-gray-700">
+  </div>
+
+  <div class="text-center">
+    <p class="text-sm text-gray-400">or manually enter this secret:</p>
+    <p class="font-mono text-lg text-yellow-400">{{ secret }}</p>
+  </div>
+
+  <form method="post" action="{% url 'mfa_verify' %}" class="w-full mt-4">
+    {% csrf_token %}
+    <label class="block mb-2 text-sm font-medium text-gray-300">Enter the 6-digit code from Google Authenticator:</label>
+    <input type="text" name="token" required 
+           class="w-full px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+           placeholder="Enter code">
+    <button type="submit" 
+            class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded font-semibold transition">
+      Verify Token
+    </button>
+  </form>
+</div>
+{% endblock %}

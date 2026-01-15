@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Policy Builder{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10 bg-gray-900 p-8 rounded-xl border border-gray-700 shadow-lg text-gray-100">
+
+  <h2 class="text-2xl font-bold mb-2 text-blue-400">
+    Policy: {{ policy.name }}
+  </h2>
+
+  <p class="text-sm text-gray-400 mb-6">
+    {{ policy.description|default:"No description." }}
+  </p>
+
+  <!-- RULE BUILDER -->
+  <div class="bg-gray-800 p-5 rounded-lg border border-gray-700 mb-8">
+    <h3 class="text-lg font-semibold mb-4">Add Policy Rule</h3>
+
+    <!-- Name + Action -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-sm mb-1 font-semibold">Rule Name</label>
+        <input id="rule_name" type="text"
+               class="w-full p-2 bg-gray-900 border border-gray-700 rounded"
+               placeholder="Block low trust">
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1 font-semibold">Action</label>
+        <select id="rule_action"
+                class="w-full p-2 bg-gray-900 border border-gray-700 rounded">
+          <option value="deny">Deny</option>
+          <option value="require_mfa">Require MFA</option>
+          <option value="block_1h">Block 1h</option>
+          <option value="escalate">Escalate</option>
+          <option value="mark_critical">Mark Critical</option>
+          <option value="allow">Allow</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Condition Row -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      <div>
+        <label class="block text-sm mb-1 font-semibold">Field</label>
+        <select id="cond_field"
+                class="w-full p-2 bg-gray-900 border border-gray-700 rounded">
+          <option value="trust_score">Trust Score</option>
+          <option value="device_score">Device Score</option>
+          <option value="ip_reputation">IP Reputation</option>
+          <option value="country">Country</option>
+          <option value="role">Role</option>
+          <option value="hour">Hour</option>
+          <option value="failed_count">Failed Logins</option>
+          <option value="time_range">Time Range</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1 font-semibold">Operator</label>
+        <select id="cond_op"
+                class="w-full p-2 bg-gray-900 border border-gray-700 rounded"></select>
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1 font-semibold">Value</label>
+        <input id="cond_value" type="text"
+               class="w-full p-2 bg-gray-900 border border-gray-700 rounded"
+               placeholder="0.6, -40-, 'IN', 'malicious'">
+      </div>
+    </div>
+
+    <!-- Priority -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-sm mb-1 font-semibold">Priority</label>
+        <input id="rule_priority" type="number"
+               value="100"
+               class="w-full p-2 bg-gray-900 border border-gray-700 rounded">
+      </div>
+
+      <div class="flex items-end">
+        <button id="saveRuleBtn"
+                class="w-full py-2 bg-green-600 hover:bg-green-500 rounded font-semibold">
+          Save Rule
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existing Rules Table -->
+  <h3 class="text-lg font-semibold mb-3">Existing Rules</h3>
+
+  <table class="w-full text-sm bg-gray-800 rounded-lg overflow-hidden">
+    <thead class="bg-gray-700">
+      <tr>
+        <th class="px-3 py-2">Name</th>
+        <th class="px-3 py-2">Condition</th>
+        <th class="px-3 py-2">Action</th>
+        <th class="px-3 py-2">Priority</th>
+        <th class="px-3 py-2">Enabled</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in policy.rules.all %}
+      <tr class="border-t border-gray-700">
+        <td class="px-3 py-2">{{ r.name }}</td>
+        <td class="px-3 py-2 text-xs">
+          field=<b>{{ r.condition.field }}</b>,
+          op=<b>{{ r.condition.op }}</b>,
+          value=<b>{{ r.condition.value }}</b>
+        </td>
+        <td class="px-3 py-2">{{ r.get_action_display }}</td>
+        <td class="px-3 py-2">{{ r.priority }}</td>
+        <td class="px-3 py-2">
+          {% if r.enabled %}
+            <span class="text-green-400">Yes</span>
+          {% else %}
+            <span class="text-red-400">No</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" class="text-center text-gray-400 py-4">No rules yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  <script>
+    const CSRFTOKEN = '{{ csrf_token }}';
+    const CREATE_URL = "{% url 'api_rule_create' policy.id %}";
+
+    const OPERATOR_MAP = {
+      "trust_score": ["<", ">", "==", "!="],
+      "device_score": ["<", ">", "=="],
+      "ip_reputation": ["==", "!="],
+      "country": ["in", "not in"],
+      "role": ["=="],
+      "hour": ["between", "<", ">"],
+      "failed_count": [">", "gte", "=="],
+      "time_range": ["in"]
+    };
+
+    function refreshOperators() {
+      const field = document.getElementById("cond_field").value;
+      const ops = OPERATOR_MAP[field] || ["=="];
+      const opSelect = document.getElementById("cond_op");
+      opSelect.innerHTML = ops.map(op => `<option value="${op}">${op}</option>`).join("");
+    }
+
+    refreshOperators();
+    document.getElementById("cond_field").addEventListener("change", refreshOperators);
+
+    document.getElementById("saveRuleBtn").onclick = () => {
+      const payload = {
+        name: rule_name.value.trim(),
+        condition: {
+          field: cond_field.value,
+          op: cond_op.value,
+          value: cond_value.value.trim()
+        },
+        action: rule_action.value,
+        priority: parseInt(rule_priority.value, 10)
+      };
+
+      if (!payload.name || !payload.condition.value) {
+        alert("Missing rule name or value.");
+        return;
+      }
+
+      fetch(CREATE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": CSRFTOKEN
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(r => r.ok ? location.reload() : alert("Save failed"));
+    };
+  </script>
+
+</div>
+{% endblock %}

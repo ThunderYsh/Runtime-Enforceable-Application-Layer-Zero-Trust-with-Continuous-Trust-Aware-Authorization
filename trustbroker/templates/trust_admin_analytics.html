@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Global Trust Analytics{% endblock %}
+
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-6 text-center">Global Trust Analytics</h2>
+
+<!-- USER COMPARISON CHART -->
+<div class="bg-gray-800 p-5 rounded-xl mb-6 shadow-xl border border-gray-700">
+    <h3 class="text-lg font-semibold mb-2">User Trust Ranking</h3>
+    <canvas id="rankingChart"></canvas>
+</div>
+
+<!-- EVENT DISTRIBUTION -->
+<div class="bg-gray-800 p-5 rounded-xl mb-6 shadow-xl border border-gray-700">
+    <h3 class="text-lg font-semibold mb-2">Global Trust Event Distribution</h3>
+    <canvas id="eventChart"></canvas>
+</div>
+
+<!-- USER TABLE -->
+<div class="bg-gray-800 p-5 rounded-xl shadow-xl border border-gray-700">
+    <h3 class="text-lg font-semibold mb-4">All Users (Trust Ranked)</h3>
+
+    <table class="w-full text-left text-sm">
+        <thead class="bg-gray-700 text-gray-300 uppercase text-xs">
+            <tr>
+                <th class="px-3 py-2">User</th>
+                <th class="px-3 py-2">Trust</th>
+                <th class="px-3 py-2"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr class="border-b border-gray-700 hover:bg-gray-900">
+                <td class="px-3 py-2">{{ u.username }}</td>
+                <td class="px-3 py-2 font-semibold">{{ u.trust }}</td>
+                <td class="px-3 py-2">
+                    <a href="{% url 'trust_admin_user_detail' u.id %}" 
+                       class="text-blue-400 hover:underline">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<!-- CHARTS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const rankingCtx = document.getElementById("rankingChart").getContext("2d");
+
+new Chart(rankingCtx, {
+    type: "bar",
+    data: {
+        labels: {{ labels|safe }},
+        datasets: [{
+            label: "Trust Score",
+            data: {{ trust_values|safe }},
+            backgroundColor: "#3b82f6"
+        }]
+    },
+    options: { indexAxis: "y" }
+});
+
+const eventCtx = document.getElementById("eventChart").getContext("2d");
+
+new Chart(eventCtx, {
+    type: "doughnut",
+    data: {
+        labels: {{ event_count.keys|list|safe }},
+        datasets: [{
+            data: {{ event_count.values|list|safe }},
+            backgroundColor: ["#ef4444", "#f97316", "#facc15", "#22c55e", "#3b82f6", "#a855f7"]
+        }]
+    }
+});
+</script>
+
+{% endblock %}

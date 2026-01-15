@@ -1,0 +1,14 @@
+.status-success {
+    color: #22c55e !important;
+    font-weight: 700;
+}
+
+.status-failure {
+    color: #e11d48 !important;
+    font-weight: 700;
+}
+
+.status-blocked {
+    color: #f97316 !important;
+    font-weight: 700;
+}

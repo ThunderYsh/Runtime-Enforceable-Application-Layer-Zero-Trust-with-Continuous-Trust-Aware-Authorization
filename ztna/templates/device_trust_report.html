@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Device Trust Report{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold text-center mb-6">Device Trust Report</h2>
+
+<div class="bg-gray-900 p-6 rounded-lg">
+
+  <p class="text-gray-300 mb-2"><b>Fingerprint Hash:</b> {{ fp_hash }}</p>
+
+  <p class="text-gray-300 mb-4">
+    <b>Risk Level:</b> <span class="{{ risk_color }}">{{ risk }}</span>
+  </p>
+
+  <div class="bg-gray-800 p-4 rounded mb-4">
+    <h3 class="font-semibold text-lg mb-2">Device Score</h3>
+    <p class="text-4xl font-bold text-blue-400">{{ score }}</p>
+  </div>
+
+  <div class="bg-gray-800 p-4 rounded mb-4">
+    <h3 class="font-semibold text-lg mb-2">Raw Fingerprint</h3>
+    <pre class="text-xs text-gray-300 whitespace-pre-wrap">{{ fp_raw }}</pre>
+  </div>
+
+  <a href="{% url 'dashboard' %}"
+     class="block mt-6 py-2 text-center bg-blue-500 hover:bg-blue-600 rounded">
+    Back to Dashboard
+  </a>
+
+</div>
+
+{% endblock %}

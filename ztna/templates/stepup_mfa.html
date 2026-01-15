@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Step-up MFA</title>
+    <style>
+        body {
+            background: #0f172a;
+            font-family: Arial, sans-serif;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .box {
+            width: 360px;
+            padding: 24px;
+            background: #111827;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.4);
+        }
+        h2 {
+            margin-top: 0;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 14px;
+            background: #3b82f6;
+            color: white;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        .msg {
+            margin-top: 10px;
+            color: #f87171;
+            font-size: 14px;
+        }
+        .info {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Step-up MFA Required</h2>
+        <p class="info">
+            Your action is flagged as sensitive. Enter your 6-digit MFA code to continue.
+        </p>
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="token" placeholder="Enter OTP" required />
+            <button type="submit">Verify Step-up MFA</button>
+        </form>
+
+        {% if error %}
+            <p class="msg">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>

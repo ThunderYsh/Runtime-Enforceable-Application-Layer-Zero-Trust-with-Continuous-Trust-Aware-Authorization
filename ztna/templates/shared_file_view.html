@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-3xl mx-auto mt-12 bg-gray-800 p-8 rounded-lg shadow-lg text-white">
+
+    <h2 class="text-center text-2xl font-semibold mb-6">
+        {{ file.name }}
+        {% if file.is_protected %}
+           <span class="text-yellow-400">🔒</span>
+        {% endif %}
+    </h2>
+
+
+    <!-- Access Info Panel -->
+    <div class="mb-5 p-4 rounded bg-gray-900 text-sm text-gray-300 border border-gray-700">
+        <p><strong>Owner:</strong> {{ file.user.username }}</p>
+        <p><strong>Access Mode:</strong> {{ file.share_mode|title }}</p>
+
+        {% if remaining_seconds %}
+        <p class="mt-2 text-yellow-300 font-semibold text-center">
+            Expires in: <span id="countdown" class="font-bold"></span>
+        </p>
+        {% endif %}
+    </div>
+
+    <!-- File Content -->
+    <pre class="bg-gray-950 p-6 rounded whitespace-pre-wrap text-sm border border-gray-700">{{ file.content }}</pre>
+
+    <div class="text-center mt-6">
+        <a href="{% url 'dashboard' %}"
+           class="bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded text-white font-semibold">
+           Back to Dashboard
+        </a>
+    </div>
+
+</div>
+
+{% if remaining_seconds %}
+<script>
+    let seconds = {{ remaining_seconds }};
+
+    function updateTimer() {
+        if (seconds <= 0) {
+            document.getElementById("countdown").innerText = "Expired";
+            setTimeout(() => location.reload(), 1500);
+            return;
+        }
+
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        document.getElementById("countdown").innerText =
+            `${h}h ${m}m ${s}s`;
+
+        seconds--;
+    }
+
+    updateTimer();
+    setInterval(updateTimer, 1000);
+</script>
+{% endif %}
+
+{% endblock %}

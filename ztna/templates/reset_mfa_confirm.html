@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Reset MFA{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto bg-gray-800 p-6 rounded mt-12">
+    <h2 class="text-xl font-bold mb-4 text-center">Reset MFA Device</h2>
+    <p class="text-gray-300 mb-4">
+        To reset your MFA device, verify your identity by entering your password.
+    </p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="password" name="password" placeholder="Enter Password"
+               class="w-full bg-gray-700 text-white p-2 rounded mb-3" required>
+
+        <button class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white w-full">
+            Reset MFA
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+
+
+
+this is a django project 
+
+i am doing MFA 
+
+usinh the py qr library build the qr image and get its base64 valeu and then render tit on the screen and beside it give e form to test the totp values 
+
+
+
+give me complete code 
+
+use totp_secret as totp secrate 
+
+i will use google auth 
+
+
+
+
+give me urls.py views.py 
+templates codes:
+ idp\templates\mfa\base.html
+ idp\templates\mfa\base.html
+
+
+ for html style use the tailwind css cdn line 
+
+ keep the main layout in base.html 
+
+
+
+my model code:
+
+from django.db import models
+from django.contrib.auth.models import User
+import pyotp
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    totp_secret = models.CharField(max_length=64, blank=True, null=True)
+    is_device_registered = models.BooleanField(default=False)
+
+    def ensure_totp(self):
+        if not self.totp_secret:
+            self.totp_secret = pyotp.random_base32()
+            self.save()
+        return self.totp_secret
+
+    def verify_totp(self, token):
+        if not self.totp_secret:
+            return False
+        totp = pyotp.TOTP(self.totp_secret)
+        return totp.verify(token, valid_window=1)
+
+    def __str__(self):
+        return self.user.username

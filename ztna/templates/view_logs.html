@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ztna/view_logs.css' %}">
+{% endblock %}
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-4 text-center">Activity Logs</h2>
+
+<!-- FILTER FORM -->
+<form method="get" class="flex flex-wrap gap-3 mb-4">
+
+  <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search actions..."
+         class="bg-gray-700 text-white p-2 rounded">
+
+  <select name="action" class="bg-gray-700 text-white p-2 rounded">
+    <option value="all">All Actions</option>
+    <option value="Created" {% if request.GET.action == "Created" %}selected{% endif %}>Created</option>
+    <option value="Edited" {% if request.GET.action == "Edited" %}selected{% endif %}>Edited</option>
+    <option value="Shared" {% if request.GET.action == "Shared" %}selected{% endif %}>Shared</option>
+    <option value="Deleted" {% if request.GET.action == "Deleted" %}selected{% endif %}>Deleted</option>
+    <option value="Executed" {% if request.GET.action == "Executed" %}selected{% endif %}>Executed</option>
+    <option value="MFA" {% if request.GET.action == "MFA" %}selected{% endif %}>MFA</option>
+  </select>
+
+  {% if all_users %}
+  <select name="user" class="bg-gray-700 text-white p-2 rounded">
+      <option value="">All Users</option>
+      {% for u in all_users %}
+      <option value="{{ u.id }}" {% if request.GET.user == u.id|stringformat:"s" %}selected{% endif %}>
+          {{ u.username }}
+      </option>
+      {% endfor %}
+  </select>
+  {% endif %}
+
+  <input type="date" name="start_date" value="{{ request.GET.start_date }}" class="bg-gray-700 text-white p-2 rounded">
+  <input type="date" name="end_date" value="{{ request.GET.end_date }}" class="bg-gray-700 text-white p-2 rounded">
+
+  <button class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-700">Apply</button>
+
+  <a href="?export=csv" class="bg-green-600 px-4 py-2 rounded hover:bg-green-700">Export CSV</a>
+</form>
+
+<!-- TABLE -->
+<table class="w-full text-left border-collapse text-sm">
+  <thead>
+    <tr class="bg-gray-700 text-gray-200 uppercase text-xs tracking-wider">
+      <th class="px-4 py-3 w-1/6">User</th>
+      <th class="px-4 py-3 w-1/2">Action</th>
+      <th class="px-4 py-3 w-1/6">Status</th>
+      <th class="px-4 py-3 w-[220px] whitespace-nowrap">Timestamp</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for log in logs %}
+    <tr class="border-b border-gray-700 hover:bg-gray-800 transition">
+      <td class="px-4 py-3 text-gray-300">{{ log.user_profile.user.username }}</td>
+      <td class="px-4 py-3 text-gray-300">{{ log.action }}</td>
+      <td class="px-4 py-3 font-semibold">
+        {% if log.status == "SUCCESS" %}
+           <span class="status-success">{{ log.status }}</span>
+        {% elif log.status == "FAILURE" %}
+           <span class="status-failure">{{ log.status }}</span>
+        {% elif log.status == "BLOCKED" %}
+           <span class="status-blocked">{{ log.status }}</span>
+        {% else %}
+           <span class="text-gray-300">{{ log.status }}</span>
+        {% endif %}
+      </td>
+
+      <td class="px-4 py-3 text-gray-400 whitespace-nowrap">
+        {{ log.timestamp|date:"M. d, Y, g:i a" }}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<a href="{% url 'dashboard' %}" class="mt-6 inline-block bg-gray-600 px-4 py-2 rounded hover:bg-gray-700">Back</a>
+
+{% endblock %}

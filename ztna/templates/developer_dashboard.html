@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Developer Dashboard{% endblock %}
+{% block content %}
+
+<div class="max-w-6xl mx-auto mt-10 bg-gray-800 p-8 rounded-lg shadow-lg">
+  <h1 class="text-3xl font-bold text-white mb-6 text-center">
+    🧠 Developer Dashboard
+  </h1>
+
+  <p class="text-gray-300 mb-6 text-center">
+    Welcome, <b>{{ request.user.username }}</b> — this panel is restricted to developers and superusers only.
+  </p>
+
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+
+    <a href="{% url 'admin:index' %}" class="bg-gray-700 hover:bg-gray-600 text-white text-center p-6 rounded-lg transition">
+      <h2 class="text-lg font-semibold">🔧 Django Admin</h2>
+      <p class="text-sm text-gray-300">Manage models, users, and logs.</p>
+    </a>
+
+    <a href="{% url 'view_logs' %}" class="bg-gray-700 hover:bg-gray-600 text-white text-center p-6 rounded-lg transition">
+      <h2 class="text-lg font-semibold">📜 Audit Logs</h2>
+      <p class="text-sm text-gray-300">View security and user actions.</p>
+    </a>
+
+    <a href="{% url 'reset_mfa_request' %}" class="bg-gray-700 hover:bg-gray-600 text-white text-center p-6 rounded-lg transition">
+      <h2 class="text-lg font-semibold">🔑 Reset MFA</h2>
+      <p class="text-sm text-gray-300">Reconfigure developer MFA settings.</p>
+    </a>
+
+    <a href="{% url 'dashboard' %}" class="bg-blue-700 hover:bg-blue-600 text-white text-center p-6 rounded-lg transition">
+      <h2 class="text-lg font-semibold">🏠 User Dashboard</h2>
+      <p class="text-sm text-gray-300">Return to normal user view.</p>
+    </a>
+
+  </div>
+</div>
+<div class="mt-10 bg-gray-800 p-6 rounded-xl shadow-lg">
+  <h2 class="text-2xl font-semibold mb-4 text-white">🔍 Recent Security Events (SIEM Logs)</h2>
+  <div class="overflow-x-auto">
+    <p class="text-gray-400 text-sm mb-2">Total Logs: {{ logs|length }}</p>
+    <table class="min-w-full text-sm text-gray-300">
+      <thead>
+        <tr class="bg-gray-700 text-gray-100 uppercase">
+          <th class="px-4 py-2 text-left whitespace-nowrap">User</th>
+          <th class="px-4 py-2 text-left whitespace-nowrap">Action</th>
+          <th class="px-4 py-2 text-left whitespace-nowrap">Status</th>
+          <th class="px-4 py-2 text-left whitespace-nowrap">IP Address</th>
+          <th class="px-4 py-2 text-left whitespace-nowrap">Timestamp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr class="border-b border-gray-700 hover:bg-gray-700">
+          <td class="px-4 py-2">{{ log.user_profile.user.username }}</td>
+          <td class="px-4 py-2 whitespace-normal break-words">{{ log.action }}</td>
+          <td class="px-4 py-2">
+            {% if log.status == "SUCCESS" %}
+              <span class="text-green-400 font-semibold">{{ log.status }}</span>
+            {% elif log.status == "BLOCKED" %}
+              <span class="text-red-500 font-semibold">{{ log.status }}</span>
+            {% else %}
+              <span class="text-yellow-400 font-semibold">{{ log.status }}</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-2">{{ log.ip_address|default:"N/A" }}</td>
+          <td class="px-4 py-2">{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center py-4">No logs found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container">
+
+    <h2 class="dash-title">ZTNA Dashboard</h2>
+    <p class="dash-subtitle">Secure Access • File Control • Device Trust • Activity Monitoring</p>
+
+    <!-- Trust Info Box -->
+    {% if decision %}
+    <div class="bg-gray-800 p-6 rounded-xl shadow-xl border border-gray-700 mb-8 max-w-4xl mx-auto">
+
+        <h3 class="text-xl font-semibold mb-4 text-center">Trust Overview</h3>
+
+        <!-- TRUST SCORE GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <!-- DASHBOARD TRUST SCORE -->
+            <div class="p-4 rounded-lg bg-gray-900 border border-gray-700">
+                <h4 class="text-xs text-gray-400 uppercase tracking-wide">Dashboard Trust</h4>
+                <div class="text-3xl mt-1 font-bold text-blue-400">{{ dashboard_trust }}</div>
+                <div class="mt-1 text-[10px] text-gray-500">
+                    0–39=blocked • 40–59=risky • 60–79=moderate • 80–100=safe
+                </div>
+            </div>
+
+            <!-- ACCESS STATUS -->
+            <div class="p-4 rounded-lg bg-gray-900 border border-gray-700">
+                <h4 class="text-xs text-gray-400 uppercase tracking-wide">Access Status</h4>
+
+                <div class="text-3xl mt-1 font-bold 
+                    {% if status == 'Allowed' %} text-green-400 
+                    {% else %} text-red-400 
+                    {% endif %}">
+                    {{ status }}
+                </div>
+
+                <div class="mt-1 text-[10px] text-gray-500">
+                    Checks device score, IP reputation, MFA, policies.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ANALYTICS TRUST SCORE -->
+        <div class="mt-5 p-4 rounded-lg bg-gray-900 border border-gray-700">
+            <h4 class="text-xs text-gray-400 uppercase tracking-wide">Behavioral Trust (Analytics)</h4>
+            <div class="text-2xl mt-1 font-bold text-purple-400">{{ trust }}</div>
+            <div class="text-[11px] text-gray-500">
+                Long-term trust (0=risky • 1=healthy). Recovers with safe actions & MFA.
+            </div>
+        </div>
+
+        <!-- TRIGGERED RULES -->
+        <div class="mt-5 p-4 rounded-lg bg-gray-900 border border-gray-700">
+            <h4 class="text-xs text-gray-400 uppercase tracking-wide mb-1">Triggered Rules</h4>
+
+            {% if decision.notes %}
+                {% for note in decision.notes %}
+                    <div class="bg-gray-800 p-2 rounded border border-gray-700 text-gray-300 text-sm">
+                        {{ note }}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-gray-500 text-sm">No active rules</div>
+            {% endif %}
+        </div>
+
+    </div>
+    {% endif %}
+
+
+    <!-- FEATURE ACCESS BLOCK -->
+    <div class="mt-10">
+
+        {% if status != "Allowed" %}
+        <div class="text-center text-red-400 text-sm mb-4">
+            Your trust score is too low to access sensitive features.<br>
+            Minimum required: <span class="font-semibold">{{ min_trust }}</span><br>
+            Your score: <span class="font-semibold">{{ trust }}</span>
+        </div>
+        {% endif %}
+
+        <div class="dash-grid">
+
+            <!-- Sensitive Features (locked when trust is low) -->
+            {% for item in features %}
+                {% if item.name in "Create File,Edit File,Share File,Fire Commands" %}
+                    
+                    {% if status == "Allowed" %}
+                    <!-- Allowed Feature -->
+                    <a href="{% url item.url %}" class="dash-card">
+                        <span>{{ item.name }}</span>
+                    </a>
+
+                    {% else %}
+                    <!-- Locked Feature -->
+                    <div class="dash-card bg-gray-700/40 border-gray-600 relative select-none pointer-events-none">
+                        <span>{{ item.name }}</span>
+
+                        <!-- LOCK ICON -->
+                        <svg class="w-5 h-5 text-red-400 absolute top-2 right-2" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 11c1.657 0 3 1.343 3 3v4H9v-4c0-1.657 1.343-3 3-3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M17 11V7a5 5 0 10-10 0v4" />
+                        </svg>
+                    </div>
+                    {% endif %}
+
+                {% endif %}
+            {% endfor %}
+
+            <!-- Always Allowed Features -->
+            <a href="{% url 'view_logs' %}" class="dash-card dash-accent">
+                <span>View Logs</span>
+            </a>
+
+            <a href="{% url 'reset_mfa_request' %}" class="dash-card dash-warning">
+                <span>Reset MFA Device</span>
+            </a>
+
+            <a href="{% url 'trust_analytics' %}" class="dash-card dash-accent">
+                <span>Trust Analytics</span>
+            </a>
+
+            <a href="{% url 'device_trust_report' %}" class="dash-card dash-accent">
+                <span>Device Trust Report</span>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

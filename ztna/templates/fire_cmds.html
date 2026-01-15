@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto mt-10 bg-gray-800 p-8 rounded-lg shadow-lg text-white">
+
+    <h2 class="text-3xl font-semibold text-center mb-6">System Command Control</h2>
+
+    <!-- STATUS PANEL -->
+    <div class="mb-6 p-4 rounded bg-gray-900 border border-gray-700 text-center" id="statusBox">
+        {% if result %}
+            <span class="text-lg font-semibold">{{ result }}</span>
+        {% else %}
+            <span class="text-gray-400">No command executed yet.</span>
+        {% endif %}
+    </div>
+    
+    <div id="statusBox" class="mb-6 p-4 rounded text-center 
+      {% if result %} 
+        {% if 'running' in result|lower %} bg-green-900 border border-green-600
+        {% elif 'stopped' in result|lower %} bg-red-900 border border-red-600
+        {% else %} bg-gray-900 border border-gray-700 {% endif %}
+      {% else %} bg-gray-900 border border-gray-700 {% endif %}">
+    
+      {% if result %}
+        <span class="text-xl font-semibold">{{ result }}</span>
+      {% else %}
+        <span class="text-gray-400">No command executed yet.</span>
+      {% endif %}
+    </div>
+
+    <form method="POST" class="grid grid-cols-2 gap-4">
+        {% csrf_token %}
+
+        <!-- START -->
+        <button name="command" value="start_docker"
+            class="py-4 rounded bg-green-600 hover:bg-green-700 font-semibold text-white">
+            Start Docker Engine
+        </button>
+
+        <!-- STOP -->
+        <button name="command" value="stop_docker"
+            class="py-4 rounded bg-red-600 hover:bg-red-700 font-semibold text-white">
+            Stop Docker Engine
+        </button>
+
+        <!-- RESTART -->
+        <button name="command" value="restart_docker"
+            class="py-4 rounded bg-yellow-600 hover:bg-yellow-700 font-semibold text-white">
+            Restart Docker Engine
+        </button>
+
+        <!-- CHECK STATUS -->
+        <button name="command" value="check_status"
+            class="py-4 rounded bg-blue-600 hover:bg-blue-700 font-semibold text-white">
+            Check Engine Status
+        </button>
+    </form>
+
+    <div class="text-center mt-8">
+        <a href="{% url 'dashboard' %}" class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded text-white">
+            Back to Dashboard
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

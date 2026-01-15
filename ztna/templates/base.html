@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'ztna/dashboard.css' %}">
+  <title>{% block title %}ZTNA Secure{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center">
+  <header class="w-full bg-gray-800 text-center py-4 text-lg font-semibold">ZTNA Secure Portal</header>
+  <main class="w-full max-w-3xl bg-gray-800 p-8 mt-10 rounded-xl shadow-xl">
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{% static 'ztna/device_fingerprint.js' %}"></script>
+
+  <!-- GLOBAL: Forward device fingerprint to backend -->
+  <script>
+    (function () {
+        const fp = sessionStorage.getItem("device_fp");
+        if (!fp) return;
+
+        // Monkey-patch fetch so every request carries fingerprint
+        const originalFetch = window.fetch;
+        window.fetch = function (url, options = {}) {
+            options.headers = options.headers || {};
+            options.headers["X-Device-Fingerprint"] = fp;
+            options.credentials = "same-origin";
+            return originalFetch(url, options);
+        };
+    })();
+  </script>
+</body>
+</html>

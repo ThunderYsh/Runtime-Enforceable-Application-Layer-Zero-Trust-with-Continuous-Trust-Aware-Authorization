@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-12 bg-gray-800 p-8 rounded shadow-lg">
+  <h2 class="text-2xl font-bold mb-6 text-center text-white">Create Account</h2>
+
+  {% if messages %}
+    <div class="mb-4">
+      {% for message in messages %}
+        <div class="bg-green-700 text-white px-4 py-2 rounded mb-2">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" class="space-y-5">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <!-- Username -->
+    <div>
+      <label for="username" class="block text-gray-200 mb-1">Username:</label>
+      <input type="text" id="username" name="username"
+        class="w-full bg-gray-700 text-white border border-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-600 rounded px-3 py-2"
+        placeholder="Enter username" required>
+      {{ form.username.errors }}
+    </div>
+
+    <!-- Password -->
+    <div>
+      {{ form.password1.label_tag }}
+      <div class="relative">
+        <input type="password" id="password1" name="password1"
+               class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500"
+               placeholder="Enter password">
+        <button type="button"
+                onclick="togglePassword('password1', this)"
+                class="absolute right-2 top-2 text-gray-400 hover:text-white">
+          👁️
+        </button>
+      </div>
+      {{ form.password1.errors }}
+    </div>
+
+    <!-- Confirm Password -->
+    <div>
+      {{ form.password2.label_tag }}
+      <div class="relative">
+        <input type="password" id="password2" name="password2"
+               class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500"
+               placeholder="Confirm password">
+        <button type="button"
+                onclick="togglePassword('password2', this)"
+                class="absolute right-2 top-2 text-gray-400 hover:text-white">
+          👁️
+        </button>
+      </div>
+      {{ form.password2.errors }}
+    </div>
+
+    <!-- Buttons -->
+    <div class="flex space-x-3">
+      <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-white font-medium">
+        Register
+      </button>
+      <a href="{% url 'login' %}" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded text-white font-medium">
+        Back to Login
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Password Toggle Script -->
+<script>
+function togglePassword(fieldId, button) {
+  const field = document.getElementById(fieldId);
+  if (field.type === "password") {
+    field.type = "text";
+    button.textContent = "🙈";
+  } else {
+    field.type = "password";
+    button.textContent = "👁️";
+  }
+}
+</script>
+{% endblock %}

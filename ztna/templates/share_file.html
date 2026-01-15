@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto mt-10 bg-gray-800 p-8 rounded-lg shadow-lg text-white">
+
+    <h2 class="text-3xl font-semibold text-center mb-6">Share File</h2>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="bg-green-700 text-white px-4 py-2 rounded mb-4 text-center">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" class="space-y-4" id="shareForm">
+        {% csrf_token %}
+
+        <!-- Select File -->
+        <label class="block text-gray-300 font-medium">Select File:</label>
+        <select name="file_id" id="fileSelect" class="w-full p-2 rounded bg-gray-700 text-white" required>
+            <option value="">-- Select a file --</option>
+            {% for f in files %}
+            <option value="{{ f.id }}" data-content="{{ f.content|escapejs }}">
+                {{ f.name }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <!-- Live File Preview -->
+        <div id="filePreview" class="hidden mt-4">
+            <h3 class="text-lg font-semibold mb-2" id="previewTitle"></h3>
+            <pre class="bg-gray-900 p-4 rounded whitespace-pre-wrap text-sm" id="previewContent"></pre>
+        </div>
+
+        <!-- Enter recipients -->
+        <label class="block text-gray-300 font-medium">Share With:</label>
+        <input type="text" name="share_with"
+               placeholder="email1, username2, email3"
+               class="w-full p-2 rounded bg-gray-700 text-white"
+               required>
+
+        <!-- Access Mode -->
+        <label class="block text-gray-300 font-medium">Access Mode:</label>
+        <div class="space-y-2">
+            <label class="flex items-center gap-2">
+                <input type="radio" name="mode" value="open" checked>
+                <span class="text-white">Open Access (Any logged-in user with link can view)</span>
+            </label>
+            <label class="flex items-center gap-2">
+                <input type="radio" name="mode" value="strict">
+                <span class="text-white">Strict Access (Only specified users can view)</span>
+            </label>
+            <label class="flex items-center gap-2">
+                <input type="radio" name="mode" value="expire">
+                <span class="text-white">Temporary Access (Expires after 24 hours)</span>
+            </label>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-3 mt-6">
+            <button class="bg-yellow-600 hover:bg-yellow-700 px-6 py-2 rounded font-semibold">
+                Share File
+            </button>
+            <a href="{% url 'dashboard' %}"
+               class="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded font-semibold">
+               Home
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById("fileSelect").addEventListener("change", function() {
+    let option = this.options[this.selectedIndex];
+    let name = option.text;
+    let content = option.getAttribute("data-content");
+
+    if (this.value) {
+        document.getElementById("filePreview").classList.remove("hidden");
+        document.getElementById("previewTitle").innerText = name;
+        document.getElementById("previewContent").innerText = content;
+    } else {
+        document.getElementById("filePreview").classList.add("hidden");
+    }
+});
+</script>
+
+{% endblock %}

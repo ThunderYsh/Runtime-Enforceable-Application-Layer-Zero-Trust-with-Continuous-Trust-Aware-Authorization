@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-6 text-center">ZTNA Login</h2>
+
+<form method="POST" action="{% url 'login' %}" class="flex flex-col space-y-4 max-w-md mx-auto relative">
+  {% csrf_token %}
+  
+  <!-- Username Field -->
+  <input name="username" type="text" placeholder="Username" required
+         class="p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500">
+
+  <!-- Password Field with Eye Button -->
+  <div class="relative">
+      <input id="password" name="password" type="password" placeholder="Password" required
+             class="w-full p-2 rounded bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 pr-10">
+      <button type="button" onclick="togglePassword('password', this)"
+              class="absolute right-3 top-2.5 text-gray-400 hover:text-white">
+          👁️
+      </button>
+  </div>
+
+  <button type="submit" class="bg-blue-600 rounded py-2 hover:bg-blue-700">Login</button>
+</form>
+<script>
+function togglePassword(fieldId, button) {
+    const field = document.getElementById(fieldId);
+    if (field.type === "password") {
+        field.type = "text";
+        button.textContent = "🙈";
+    } else {
+        field.type = "password";
+        button.textContent = "👁️";
+    }
+}
+</script>
+
+<!-- login.html near form -->
+<p class="mt-4 text-center text-sm">
+  Don't have an account? <a href="{% url 'register' %}" class="text-blue-400">Register</a>
+</p>
+
+
+{% for message in messages %}
+<p class="mt-4 text-center text-red-400">{{ message }}</p>
+{% endfor %}
+{% endblock %}

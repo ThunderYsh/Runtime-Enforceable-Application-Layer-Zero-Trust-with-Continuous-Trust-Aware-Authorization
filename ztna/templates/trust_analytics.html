@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Trust Analytics{% endblock %}
+
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-6 text-center">Trust Analytics Dashboard</h2>
+
+<a href="{% url 'dashboard' %}" 
+   class="ml-4 px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white shadow">
+    ⬅ Home
+</a>
+
+<!-- CURRENT SCORE -->
+<div class="bg-gray-800 p-5 rounded-xl mb-6 shadow-xl border border-gray-700">
+    <h3 class="text-lg font-semibold mb-2">Current Trust Score</h3>
+    <div class="text-4xl font-bold text-blue-400">
+        {{ current_trust }}
+    </div>
+</div>
+
+<!-- TIMELINE CHART -->
+<div class="bg-gray-800 p-5 rounded-xl mb-6 shadow-xl border border-gray-700">
+    <h3 class="text-lg font-semibold mb-2">Trust Score Over Time</h3>
+    <canvas id="timelineChart"></canvas>
+</div>
+
+<!-- EVENT DISTRIBUTION -->
+<div class="bg-gray-800 p-5 rounded-xl mb-6 shadow-xl border border-gray-700">
+    <h3 class="text-lg font-semibold mb-2">Event Distribution</h3>
+    <canvas id="eventChart"></canvas>
+</div>
+
+<!-- EVENTS TABLE -->
+<div class="bg-gray-800 p-5 rounded-xl shadow-xl border border-gray-700">
+    <h3 class="text-lg font-semibold mb-4">Recent Trust Events</h3>
+
+    <table class="w-full text-left text-sm">
+        <thead class="bg-gray-700 text-gray-300 uppercase text-xs">
+            <tr>
+                <th class="px-3 py-2">Event</th>
+                <th class="px-3 py-2">Delta</th>
+                <th class="px-3 py-2">Old → New</th>
+                <th class="px-3 py-2">IP</th>
+                <th class="px-3 py-2">Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in events %}
+            <tr class="border-b border-gray-700 hover:bg-gray-900">
+                <td class="px-3 py-2">{{ e.event_type }}</td>
+
+                <td class="px-3 py-2 {% if e.delta < 0 %}text-red-400{% else %}text-green-400{% endif %}">
+                    {{ e.delta }}
+                </td>
+
+                <td class="px-3 py-2">{{ e.old_score }} → {{ e.new_score }}</td>
+                <td class="px-3 py-2">{{ e.ip }}</td>
+                <td class="px-3 py-2">{{ e.timestamp|date:"H:i:s" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* Timeline Chart */
+const timelineCtx = document.getElementById("timelineChart").getContext("2d");
+
+new Chart(timelineCtx, {
+    type: "line",
+    data: {
+        labels: {{ timeline_labels|safe }},
+        datasets: [{
+            label: "Trust Score",
+            data: {{ timeline_scores|safe }},
+            borderWidth: 2,
+            borderColor: "#3b82f6",
+            tension: 0.3
+        }]
+    },
+});
+
+/* Event Distribution */
+const eventCtx = document.getElementById("eventChart").getContext("2d");
+
+new Chart(eventCtx, {
+    type: "bar",
+    data: {
+        labels: {{ event_labels|safe }},
+        datasets: [{
+            label: "Events",
+            data: {{ event_values|safe }},
+            borderWidth: 1
+        }]
+    },
+});
+
+</script>
+
+{% endblock %}

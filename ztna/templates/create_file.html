@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto mt-10 bg-gray-800 p-8 rounded-lg shadow-lg">
+
+    <h2 class="text-3xl font-semibold mb-6 text-center text-white">File Dashboard</h2>
+
+    <!-- Create / Edit File Form -->
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        <input type="hidden" name="file_id" value="{{ edit_file.id|default:'' }}">
+
+        <!-- FILENAME WITH LOCK INDICATOR -->
+        <input type="text" name="filename"
+               value="{{ edit_file.name|default:'' }}{% if edit_file and edit_file.is_protected %} (Locked 🔒){% endif %}"
+               placeholder="File Name"
+               class="w-full p-3 rounded bg-gray-700 text-white outline-none focus:ring-2 focus:ring-blue-500">
+
+        <textarea name="content" rows="8" placeholder="Write your file content..."
+            class="w-full p-3 rounded bg-gray-700 text-white outline-none focus:ring-2 focus:ring-blue-500">{{ edit_file.content|default:'' }}</textarea>
+
+
+        <!-- PASSWORD PROTECTION -->
+        <div class="mt-4 bg-gray-700 p-4 rounded">
+
+            {% if edit_file and edit_file.is_protected %}
+                <p class="text-green-400 font-semibold mb-2">🔒 This file is password protected</p>
+
+                <!-- CHANGE PASSWORD -->
+                <label class="text-white font-semibold block mt-2">
+                  <input type="checkbox" id="changePwdToggle" name="change_password">
+                  Change Password
+                </label>
+
+                <div id="changePwdBox" class="hidden mt-3">
+                  <input type="password" name="new_file_password" id="newPwdField"
+                         placeholder="Enter new password"
+                         class="w-full p-2 bg-gray-900 text-white rounded">
+                </div>
+
+                <!-- REMOVE PASSWORD -->
+                <label class="text-white font-semibold block mt-4">
+                  <input type="checkbox" name="remove_password">
+                  Remove Password Protection
+                </label>
+
+            {% else %}
+
+                <!-- SET INITIAL PASSWORD -->
+                <label class="text-white font-semibold">
+                  <input type="checkbox" id="protectToggle" name="protect">
+                  Password protect this file
+                </label>
+
+                <div id="passwordBox" class="hidden mt-3">
+                    <input type="password" id="pwdField" name="file_password"
+                           placeholder="Enter password"
+                           class="w-full p-2 bg-gray-900 text-white rounded">
+                </div>
+
+            {% endif %}
+        </div>
+
+        <script>
+        document.getElementById("changePwdToggle")?.addEventListener("change", (e) => {
+            document.getElementById("changePwdBox").classList.toggle("hidden", !e.target.checked);
+        });
+        document.getElementById("protectToggle")?.addEventListener("change", (e) => {
+            document.getElementById("passwordBox").classList.toggle("hidden", !e.target.checked);
+        });
+        </script>
+
+        <div class="flex gap-3">
+            <button type="submit"
+                    class="bg-green-600 hover:bg-green-700 px-5 py-2 rounded text-white font-medium">
+                {% if edit_file %}Update File{% else %}Save File{% endif %}
+            </button>
+
+            {% if edit_file %}
+            <a href="{% url 'create_file' %}?new=true"
+                class="bg-gray-600 hover:bg-gray-700 px-5 py-2 rounded text-white font-medium">
+                Add New File
+            </a>
+            {% endif %}
+
+            <a href="{% url 'dashboard' %}"
+                class="bg-gray-600 hover:bg-gray-700 px-5 py-2 rounded text-white font-medium">
+                Home
+            </a>
+        </div>
+    </form>
+
+
+    <!-- Search -->
+    <div class="mt-8">
+        <input type="text" id="search" placeholder="Search files..."
+            onkeyup="filterFiles()"
+            class="w-full p-2 bg-gray-700 text-white rounded outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+
+    <!-- Files Table -->
+    <h3 class="text-xl font-semibold mt-6 text-white">Your Files</h3>
+    <table class="w-full mt-3 text-left text-white border-collapse">
+        <thead>
+            <tr class="bg-gray-700">
+                <th class="p-3">Name</th>
+                <th class="p-3">Last Updated</th>
+                <th class="p-3 text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="fileTable">
+            {% for f in files %}
+            <tr class="border-b border-gray-600">
+                <td class="p-3">
+                    {{ f.name }}
+                    {% if f.is_protected %}
+                        <span class="ml-2 text-red-400 font-bold">(Locked 🔒)</span>
+                    {% endif %}
+                </td>
+
+                <td class="p-3">{{ f.updated_at|date:"Y-m-d H:i" }}</td>
+
+                <td class="p-3 text-center space-x-3">
+
+                    <button onclick="viewFile('{{ f.name }}', `{{ f.content|escapejs }}`, '{{ f.is_protected }}', '{{ f.id }}')"
+                        class="text-yellow-400 hover:text-yellow-500 font-semibold">
+                        View
+                    </button>
+
+                    <a href="?edit={{ f.id }}" class="text-blue-400 hover:text-blue-600 font-semibold">Edit</a>
+
+                    <a href="{% url 'delete_file' f.id %}"
+                       onclick="return confirm('Delete {{ f.name }}?');"
+                       class="text-red-400 hover:text-red-600 font-semibold">
+                       Delete
+                    </a>
+
+                    {% if f.is_protected %}
+                        <a href="#" onclick="downloadProtected({{ f.id }}, 'txt')"
+                           class="text-green-400 hover:text-green-500 font-semibold">
+                           TXT
+                        </a>
+
+                        <a href="#" onclick="downloadProtected({{ f.id }}, 'pdf')"
+                           class="text-purple-400 hover:text-purple-500 font-semibold">
+                           PDF
+                        </a>
+                    {% else %}
+                        <a href="{% url 'download_file_txt' f.id %}"
+                           class="text-green-400 hover:text-green-500 font-semibold">
+                           TXT
+                        </a>
+
+                        <a href="{% url 'download_file_pdf' f.id %}"
+                           class="text-purple-400 hover:text-purple-500 font-semibold">
+                           PDF
+                        </a>
+                    {% endif %}
+                </td>
+            </tr>
+
+            {% empty %}
+            <tr><td colspan="3" class="p-3 text-center text-gray-400">No files found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<!-- VIEW FILE MODAL -->
+<div id="viewModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center">
+  <div class="bg-gray-800 p-5 rounded shadow-lg w-2/3 max-h-[80vh] overflow-y-auto text-white">
+    <h3 class="text-xl font-bold mb-3" id="viewFileName"></h3>
+    <pre id="viewFileContent" class="bg-gray-900 p-3 rounded whitespace-pre-wrap"></pre>
+    <button onclick="document.getElementById('viewModal').classList.add('hidden')"
+            class="mt-4 bg-red-600 px-4 py-2 rounded hover:bg-red-700">
+      Close
+    </button>
+  </div>
+</div>
+
+<script>
+function viewFile(name, content, isProtected, fileId){
+    if (isProtected === "True") {
+        let pwd = prompt("This file is password protected. Enter password:");
+        if (!pwd) return;
+
+        fetch(`/ztna/decrypt-file/${fileId}/?pwd=${pwd}`)
+            .then(r => r.json())
+            .then(d => {
+                if (!d.ok) return alert("Wrong password!");
+                document.getElementById("viewFileName").innerText = name;
+                document.getElementById("viewFileContent").innerText = d.content;
+                document.getElementById("viewModal").classList.remove("hidden");
+            });
+        return;
+    }
+
+    document.getElementById("viewFileName").innerText = name;
+    document.getElementById("viewFileContent").innerText = content;
+    document.getElementById("viewModal").classList.remove("hidden");
+}
+
+function filterFiles() {
+    let input = document.getElementById("search").value.toLowerCase();
+    document.querySelectorAll("#fileTable tr").forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+    });
+}
+
+function downloadProtected(fileId, type) {
+    let pwd = prompt("This file is password protected. Enter password:");
+    if (!pwd) return;
+    const url = `/ztna/download-protected/${fileId}/${type}/?pwd=${encodeURIComponent(pwd)}`;
+    window.location = url;
+}
+</script>
+
+{% endblock %}
