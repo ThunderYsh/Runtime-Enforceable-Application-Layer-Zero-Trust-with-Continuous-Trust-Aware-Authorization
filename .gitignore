@@ -56,5 +56,11 @@ Thumbs.db
 # Reports / exports (optional)
 # -----------------------------
 *.csv
+!latency_baseline.csv
+!latency_ztna.csv
+!sensitivity_results.csv
+!sensitivity_summary.csv
+!trust_timeseries.csv
+
 *.xlsx
 *.pdf

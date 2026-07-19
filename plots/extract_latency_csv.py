@@ -1,4 +1,11 @@
 # plots/extract_latency_csv.py
+#
+# Usage:
+#   python plots/extract_latency_csv.py <out.csv> [since_iso_timestamp]
+#
+# Exports AuditLog rows with action="request_latency" to CSV, optionally
+# filtered to timestamp >= since_iso_timestamp (used to isolate a single
+# benchmark run's window from the rest of the log history).
 
 import os
 import sys
@@ -18,18 +25,22 @@ sys.path.append(str(BASE_DIR))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ztna_proj.settings")
 django.setup()
 
-from siem.utils import audit_log
+from siem.models import AuditLog
 
-OUT_CSV = BASE_DIR / "latency_measurements.csv"
+OUT_CSV = Path(sys.argv[1]) if len(sys.argv) > 1 else BASE_DIR / "latency_measurements.csv"
+SINCE = sys.argv[2] if len(sys.argv) > 2 else None
 
 # -----------------------------
 # Query latency logs
 # -----------------------------
 logs = (
     AuditLog.objects
+    .filter(action="request_latency")
     .exclude(latency_ms__isnull=True)
-    .order_by("timestamp")  
+    .order_by("timestamp")
 )
+if SINCE:
+    logs = logs.filter(timestamp__gte=SINCE)
 
 print(f"[INFO] Extracting {logs.count()} latency records")
 

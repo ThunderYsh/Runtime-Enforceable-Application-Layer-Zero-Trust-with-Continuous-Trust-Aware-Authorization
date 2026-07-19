@@ -53,18 +53,34 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'ztna.device_fingerprint_middleware.DeviceFingerprintMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # Runs after AuthenticationMiddleware because device scoring looks up
+    # per-user DeviceFingerprintRecord history (request.user must be resolved).
+    'ztna.device_fingerprint_middleware.DeviceFingerprintMiddleware',
     'ztna_proj.latency.RequestLatencyMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'ztna_proj.middleware.admin_only_middleware',
     'policy.middleware.NightAccessMiddleware',
     'policy.middleware_enforcer.PolicyEnforcementMiddleware',
-    
 ]
+
+# Set to False to disable ZTNA-specific enforcement middleware (device scoring,
+# night-access policy, policy enforcement) for a controlled baseline latency
+# capture. See README/paper Section VIII for how this is used.
+ZTNA_ENFORCEMENT_ENABLED = os.getenv("ZTNA_ENFORCEMENT_ENABLED", "true").lower() != "false"
+
+if not ZTNA_ENFORCEMENT_ENABLED:
+    MIDDLEWARE = [
+        m for m in MIDDLEWARE
+        if m not in (
+            'ztna.device_fingerprint_middleware.DeviceFingerprintMiddleware',
+            'policy.middleware.NightAccessMiddleware',
+            'policy.middleware_enforcer.PolicyEnforcementMiddleware',
+        )
+    ]
 
 ROOT_URLCONF = 'ztna_proj.urls'
 

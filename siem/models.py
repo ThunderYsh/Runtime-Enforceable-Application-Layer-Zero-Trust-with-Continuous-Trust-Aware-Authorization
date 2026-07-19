@@ -18,6 +18,7 @@ class AuditLog(models.Model):
             ("FAILURE", "FAILURE"),
             ("BLOCKED", "BLOCKED"),
             ("ADMIN_UNBLOCK", "ADMIN_UNBLOCK"),
+            ("REQUIRE_MFA", "REQUIRE_MFA"),
         ],
         default="SUCCESS",
     )

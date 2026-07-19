@@ -1,0 +1,26 @@
+
+\begin{table}[htbp]
+\centering
+\caption{Experimental Evaluation Dataset Characteristics (deployed prototype, live query)}
+\label{tab:dataset}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{lc}
+\toprule
+\textbf{Parameter} & \textbf{Count} \\
+\midrule
+  Registered Users & 5 \\
+  Active Sessions (users with any login record) & 5 \\
+  Total ZTNA Requests Evaluated & 647 \\
+  Registered Device Fingerprint Records & 22 \\
+  Distinct Devices (user, fingerprint pairs) & 22 \\
+  Configured Access Policies & 2 \\
+  Active Policy Rules & 4 \\
+  Trust Events Logged & 308 \\
+  Audit Log Entries & 643 \\
+  ZTNA Requests — APPROVED & 396 \\
+  ZTNA Requests — ATTEMPT & 248 \\
+  ZTNA Requests — BLOCKED & 2 \\
+  ZTNA Requests — DENIED & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}

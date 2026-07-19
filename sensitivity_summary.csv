@@ -1,0 +1,5 @@
+penalty_set,mfa_fail_penalty,avg_trust_mean,avg_trust_ci95,total_mfa_triggers,total_restrict_hits,total_block_hits,fp_rate
+Set A (α=0.03),0.03,0.8207,0.0396,545,545,122,0
+"Set B (α=0.06, baseline)",0.06,0.8053,0.0415,610,610,156,0
+Set C (α=0.10),0.1,0.7494,0.0518,588,588,342,0
+Set D (α=0.15),0.15,0.7166,0.0561,579,579,526,0

@@ -1,0 +1,14 @@
+
+\begin{table}[htbp]
+\centering
+\caption{Latency Percentile Comparison Between Baseline and ZTNA-Enabled Execution}
+\label{tab:latency_percentiles}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Configuration} & \textbf{p50 (ms)} & \textbf{p95 (ms)} & \textbf{p99 (ms)} \\
+\midrule
+Baseline (No ZTNA) & 30.55 & 36.23 & 42.48 \\
+ZTNA Enabled & 31.11 & 40.44 & 62.48 \\
+\bottomrule
+\end{tabular}
+\end{table}

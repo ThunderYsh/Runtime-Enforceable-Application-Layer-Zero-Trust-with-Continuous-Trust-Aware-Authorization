@@ -3,6 +3,16 @@ from idp.models import UserProfile
 from appsrv.models import ApplicationResource
 from trustbroker.models import TrustScore
 
+# enforce_access() returns a lowercase "action" ("allow" / "blocked" / "mfa" /
+# ...) that never matches ZTNARequest.STATUS_CHOICES ("APPROVED" / "BLOCKED" /
+# "DENIED" / "PENDING"). Writing decision["action"] straight into `status`
+# silently created rows no status-based query could ever find. This map is
+# the single normalization point.
+ACTION_TO_STATUS = {
+    "allow": "APPROVED",
+    "blocked": "BLOCKED",
+}
+
 
 def log_ztna(
     user,
@@ -47,12 +57,15 @@ def log_ztna(
             policy_rule_id=None,
         )
 
+    action = decision.get("action")
+    normalized_status = ACTION_TO_STATUS.get(action, "DENIED" if action else (status or "PENDING"))
+
     return ZTNARequest.objects.create(
         user_profile=profile,
         app_resource=app,
         trust_score=ts,
         ip_address=ip,
-        status=decision.get("action", status or "PENDING"),
+        status=normalized_status,
         decision_reason=decision.get("reason", reason or ""),
         location="Unknown",
         policy_rule_id=decision.get("policy_rule_id"),

@@ -50,6 +50,7 @@ class PolicyEnforcementMiddleware(MiddlewareMixin):
                 "reason": "admin_override",
                 "trust_score": 100,
                 "notes": ["admin_override"],
+                "allow_sensitive": True,
             }
             return None
 

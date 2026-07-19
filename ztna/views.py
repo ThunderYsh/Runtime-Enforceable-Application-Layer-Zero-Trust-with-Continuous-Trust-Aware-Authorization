@@ -52,6 +52,51 @@ def is_stepup_valid(request):
         return False
     return timezone.now().timestamp() < float(until)
 
+
+STEPUP_MFA_TRUST_THRESHOLD = 0.60  # matches MIN_TRUST used for feature gating
+STEPUP_MFA_DEVICE_SCORE_THRESHOLD = 40  # below this = no fingerprint or unrecognized device
+
+
+def require_stepup_mfa_if_low_trust(request, profile, action_label, ip, device_score=None):
+    """
+    Trust-driven step-up MFA gate for sensitive actions (file upload/edit/
+    share, command execution -- see Table IX in the paper). Triggers when
+    EITHER behavioral trust has dropped below the restriction threshold OR
+    the request comes from an unrecognized/unfingerprinted device (device
+    posture, per Table VIII "New Device Login"). If the user hasn't
+    completed step-up MFA within the last 5 minutes, redirect into the
+    step-up flow instead of silently allowing the action.
+
+    Returns an HttpResponseRedirect if step-up is required, else None.
+    """
+    if is_stepup_valid(request):
+        return None
+
+    ts, _ = TrustScore.objects.get_or_create(user_profile=profile)
+    behavioral_trust = ts.overall_trust
+
+    low_behavioral_trust = behavioral_trust < STEPUP_MFA_TRUST_THRESHOLD
+    unrecognized_device = (
+        device_score is not None and device_score < STEPUP_MFA_DEVICE_SCORE_THRESHOLD
+    )
+
+    if not low_behavioral_trust and not unrecognized_device:
+        return None
+
+    reason = "low behavioral trust" if low_behavioral_trust else "unrecognized device"
+    if low_behavioral_trust and unrecognized_device:
+        reason = "low behavioral trust and unrecognized device"
+
+    audit_log(
+        user_profile=profile,
+        action=f"Step-up MFA required for {action_label} ({reason})",
+        status="REQUIRE_MFA",
+        ip=ip,
+    )
+    request.session["stepup_next"] = request.get_full_path()
+    request.session.modified = True
+    return redirect("stepup_mfa")
+
 # -----------------------------
 # DOCKER HELPERS
 # -----------------------------
@@ -200,22 +245,12 @@ def mfa_view(request):
             ts, _ = TrustScore.objects.get_or_create(user_profile=profile)
             ts.recovery_after_mfa()
 
-            # update device fingerprint record
-            fp = getattr(request, "device_fingerprint", {}) or {}
-            fp_hash = fp.get("hash") or "unknown"
-            fp_raw = fp.get("raw") or "{}"
-            ip = request.META.get("REMOTE_ADDR", "")
-
-            if fp_hash and fp_hash != "unknown":
-                DeviceFingerprintRecord.objects.update_or_create(
-                    user_profile=profile,
-                    fingerprint=fp_hash,
-                    defaults={
-                        "raw": fp_raw,
-                        "last_ip": ip,
-                        "last_seen": timezone.now(),
-                    },
-                )
+            # NOTE: this fingerprint is NOT registered as "known" here.
+            # Regular login MFA proves identity, not device familiarity --
+            # DeviceFingerprintRecord is only written on successful step-up
+            # MFA (see stepup_mfa_view), so an unrecognized device stays
+            # unrecognized (and subject to the sensitive-action step-up
+            # gate) until it is explicitly verified via that path.
 
             audit_log(
                 user_profile=profile,
@@ -295,6 +330,27 @@ def stepup_mfa_view(request):
 
             request.session.modified = True
 
+            ts, _ = TrustScore.objects.get_or_create(user_profile=profile)
+            ts.recovery_after_mfa()
+
+            # Verified step-up MFA is what marks this fingerprint "known" --
+            # the device-score step-up gate (require_stepup_mfa_if_low_trust)
+            # is only meaningful if completing it is the thing that changes
+            # a device's status, rather than plain login MFA registering it
+            # unconditionally.
+            fp = getattr(request, "device_fingerprint", {}) or {}
+            fp_hash = fp.get("hash")
+            if fp_hash:
+                DeviceFingerprintRecord.objects.update_or_create(
+                    user_profile=profile,
+                    fingerprint=fp_hash,
+                    defaults={
+                        "raw": fp.get("raw") or "{}",
+                        "last_ip": request.META.get("REMOTE_ADDR", ""),
+                        "last_seen": timezone.now(),
+                    },
+                )
+
             AuditLog.objects.create(
                 user_profile=profile,
                 action="Step-up MFA Success",
@@ -304,6 +360,8 @@ def stepup_mfa_view(request):
 
             next_url = request.session.pop("stepup_next", "/ztna/dashboard/")
             return redirect(next_url)
+
+        event_penalty(profile, "mfa_fail", request.META.get("REMOTE_ADDR", ""))
 
         AuditLog.objects.create(
             user_profile=profile,
@@ -318,11 +376,10 @@ def stepup_mfa_view(request):
 
     return render(request, "stepup_mfa.html")
 
-
 # -----------------------------
 # DASHBOARD
 # -----------------------------
-MIN_TRUST = 0.60
+MIN_TRUST = 0.60  # behavioral trust shown for analytics only (0–1)
 
 @login_required
 def dashboard(request):
@@ -330,7 +387,6 @@ def dashboard(request):
     profile = UserProfile.objects.get(user=user)
     ip = request.META.get("REMOTE_ADDR", "")
 
-    # 0) ZTNA attempt log (if your log_ztna supports status-only mode)
     log_ztna(
         user=user,
         app_name="Dashboard",
@@ -339,26 +395,37 @@ def dashboard(request):
         reason="access dashboard",
     )
 
-    # 1) MFA required
+    # -------------------------------------------------
+    # 1) MFA login gate (user must pass MFA to enter portal)
+    # -------------------------------------------------
     if not request.session.get("mfa_login_passed", False):
         request.session["stepup_next"] = request.get_full_path()
         request.session.modified = True
-        return redirect("stepup_mfa")
+        return redirect("mfa")  # login MFA (not step-up)
 
-    # 2) device_score default 50
-    device_score = getattr(request, "device_score", 50)
+    # -------------------------------------------------
+    # 2) Device score input (MUST be consistent)
+    # -------------------------------------------------
+    # If middleware didn't set it, derive safely.
+    device_score = getattr(request, "device_score", None)
+    if device_score is None:
+        # fallback: use neutral score instead of lying
+        device_score = 50
 
-    # 3) policy engine decision
-    decision = enforce_access(
-        user=user,
-        ip=ip,
-        protected_link=None,
-        device_score=device_score,
-        mfa_passed=request.session.get("mfa_login_passed", False),
-    )
+    # -------------------------------------------------
+    # 3) Enforcement decision (ZTNA runtime)
+    # -------------------------------------------------
+    decision = getattr(request, "ztna_decision", None)
 
-    # ✅ FIX: app_resource was undefined in your code (CRASH)
-    # Use Dashboard as resource name (or app model if you have one)
+    if not decision:
+        decision = enforce_access(
+            user=user,
+            ip=ip,
+            protected_link=None,
+            device_score=device_score,
+            mfa_passed=request.session.get("mfa_login_passed", False),
+        )
+
     log_ztna(
         user=user,
         app_name="Dashboard",
@@ -369,7 +436,9 @@ def dashboard(request):
     dashboard_trust = decision.get("dashboard_trust", 100)
     action = decision.get("action")
 
-    # 4) hard block
+    # -------------------------------------------------
+    # 4) Hard block from policy engine
+    # -------------------------------------------------
     if action == "blocked":
         audit_log(
             user_profile=profile,
@@ -381,80 +450,64 @@ def dashboard(request):
         event_penalty(profile, "blocked", ip)
         return HttpResponseForbidden("Blocked by ZTNA policies")
 
-    # 5) require MFA again
-    if action == "mfa":
-        audit_log(
-            user_profile=profile,
-            action="Dashboard requires MFA (step-up)",
-            status="FAILURE",
-            ip=ip,
-            policy_rule_id=decision.get("policy_rule_id"),
-        )
-        request.session["mfa_next"] = request.get_full_path()
-        request.session.modified = True
-        return redirect("mfa")
 
-    # 6) behavioral trust update (your model)
+    # -------------------------------------------------
+    # 5) Behavioral trust (analytics only)
+    # -------------------------------------------------
     ts, _ = TrustScore.objects.get_or_create(user_profile=profile)
     ts.hourly_recovery()
     ts.recovery_after_safe_action()
 
     behavioral_trust = round(ts.overall_trust, 3)
-    status = "Allowed" if behavioral_trust >= MIN_TRUST else "Not Allowed"
 
-    # 7) feature gate
-    features = []
-    if status == "Allowed":
-        features = [
-            {"name": "Create File", "url": "create_file"},
-            {"name": "Edit File", "url": "edit_file"},
-            {"name": "Share File", "url": "share_file"},
-            {"name": "Fire Commands", "url": "fire_cmds"},
-            {"name": "View Logs", "url": "view_logs"},
-            {"name": "Reset MFA Device", "url": "reset_mfa_request"},
-            {"name": "Trust Analytics", "url": "trust_analytics"},
-        ]
+    # -------------------------------------------------
+    # 6) Feature gating MUST follow BEHAVIORAL TRUST for UI control
+    # -------------------------------------------------
+    # If behavioral trust < 0.60 -> normal user should not see sensitive actions
+    behavioral_gate = behavioral_trust >= 0.60
 
-    # 8) success/deny logs (non-admin)
+
+    allow_sensitive = decision.get("allow_sensitive", behavioral_trust >= 0.60)
+
+    features = [
+        {"name": "Create File", "url": "create_file", "sensitive": True},
+        {"name": "Edit File", "url": "edit_file", "sensitive": True},
+        {"name": "Share File", "url": "share_file", "sensitive": True},
+        {"name": "Fire Commands", "url": "fire_cmds", "sensitive": True},
+
+        {"name": "View Logs", "url": "view_logs", "sensitive": False},
+        {"name": "Reset MFA Device", "url": "reset_mfa_request", "sensitive": False},
+        {"name": "Trust Analytics", "url": "trust_analytics", "sensitive": False},
+        {"name": "Device Trust Report", "url": "device_trust_report", "sensitive": False},
+    ]
+
+    status = "Allowed" if allow_sensitive else "Restricted"
+
+    # -------------------------------------------------
+    # 8) Logging
+    # -------------------------------------------------
     if not user.is_superuser:
-        if status == "Allowed":
-            audit_log(
-                user_profile=profile,
-                action="Dashboard access",
-                status="SUCCESS",
-                ip=ip,
-                policy_rule_id=decision.get("policy_rule_id"),
-            )
-        else:
-            audit_log(
-                user_profile=profile,
-                action="Dashboard access blocked by low behavioral trust",
-                status="BLOCKED",
-                ip=ip,
-                policy_rule_id=decision.get("policy_rule_id"),
-            )
+        audit_log(
+            user_profile=profile,
+            action="Dashboard access",
+            status="SUCCESS",
+            ip=ip,
+            policy_rule_id=decision.get("policy_rule_id"),
+        )
 
-    # 9) superuser override
-    if user.is_superuser:
-        return render(request, "dashboard.html", {
-            "decision": {"allowed": True, "notes": ["admin_override"]},
-            "status": "Allowed",
-            "dashboard_trust": 100,
-            "trust": 1.0,
-            "min_trust": 0,
-            "features": features,
-        })
 
-    # 10) final render
+    # -------------------------------------------------
+    # 10) Final render
+    # -------------------------------------------------
     return render(request, "dashboard.html", {
         "decision": decision,
         "status": status,
         "dashboard_trust": dashboard_trust,
-        "trust": behavioral_trust,
+        "trust": behavioral_trust,   # analytics only
         "min_trust": MIN_TRUST,
         "features": features,
+        "allow_sensitive": allow_sensitive,
     })
-
 
 
 
@@ -472,6 +525,34 @@ def create_file_view(request):
         status="APPROVED",
         reason="open create file page",
     )
+
+    # --- Enforce runtime ZTNA for this sensitive operation ---
+    decision = enforce_access(
+        user=request.user,
+        ip=ip,
+        protected_link=None,
+        device_score=getattr(request, "device_score", 50),
+        mfa_passed=request.session.get("mfa_login_passed", False),
+    )
+
+    if decision.get("action") == "blocked":
+        audit_log(
+            user_profile=profile,
+            action="Denied create/edit file access (ZTNA blocked)",
+            status="BLOCKED",
+            ip=ip,
+            policy_rule_id=decision.get("policy_rule_id"),
+        )
+        return HttpResponseForbidden("Blocked by ZTNA enforcement")
+
+    stepup_redirect = require_stepup_mfa_if_low_trust(
+        request, profile, "create/edit file access", ip,
+        device_score=getattr(request, "device_score", 50),
+    )
+    if stepup_redirect:
+        return stepup_redirect
+        return HttpResponseForbidden("Blocked by ZTNA enforcement")
+
 
     query = request.GET.get("q", "")
     files = File.objects.filter(user=request.user, name__icontains=query).order_by("-updated_at")
@@ -558,6 +639,7 @@ def create_file_view(request):
 
 
 
+
 @login_required
 def edit_file_view(request):
     profile = UserProfile.objects.get(user=request.user)
@@ -570,6 +652,33 @@ def edit_file_view(request):
         status="APPROVED",
         reason="open edit file page",
     )
+
+    # --- Enforce runtime ZTNA for this sensitive operation ---
+    decision = enforce_access(
+        user=request.user,
+        ip=ip,
+        protected_link=None,
+        device_score=getattr(request, "device_score", 50),
+        mfa_passed=request.session.get("mfa_passed", False),
+    )
+
+    if decision.get("action") == "blocked":
+        audit_log(
+            user_profile=profile,
+            action="Denied edit file access (ZTNA blocked)",
+            status="BLOCKED",
+            ip=ip,
+            policy_rule_id=decision.get("policy_rule_id"),
+        )
+        return HttpResponseForbidden("Blocked by ZTNA enforcement")
+
+    stepup_redirect = require_stepup_mfa_if_low_trust(
+        request, profile, "edit file access", ip,
+        device_score=getattr(request, "device_score", 50),
+    )
+    if stepup_redirect:
+        return stepup_redirect
+
 
     files = File.objects.filter(user=request.user)
 
@@ -597,6 +706,7 @@ def edit_file_view(request):
         "active_id": active_id,
         "active_content": active_content
     })
+
 
 
 @login_required
@@ -775,6 +885,33 @@ def share_file_view(request):
         reason="open share file page",
     )
 
+    # --- Enforce runtime ZTNA for this sensitive operation ---
+    decision = enforce_access(
+        user=request.user,
+        ip=ip,
+        protected_link=None,
+        device_score=getattr(request, "device_score", 50),
+        mfa_passed=request.session.get("mfa_passed", False),
+    )
+
+    if decision.get("action") == "blocked":
+        audit_log(
+            user_profile=profile,
+            action="Denied share file access (ZTNA blocked)",
+            status="BLOCKED",
+            ip=ip,
+            policy_rule_id=decision.get("policy_rule_id"),
+        )
+        return HttpResponseForbidden("Blocked by ZTNA enforcement")
+
+    stepup_redirect = require_stepup_mfa_if_low_trust(
+        request, profile, "share file access", ip,
+        device_score=getattr(request, "device_score", 50),
+    )
+    if stepup_redirect:
+        return stepup_redirect
+
+
     files = File.objects.filter(user=request.user)
 
     if request.method == "POST":
@@ -853,6 +990,7 @@ You must ask the sender for the password.
     return render(request, "share_file.html", {"files": files})
 
 
+
 def shared_file_view(request, file_id):
     f = get_object_or_404(File, id=file_id)
     ip = request.META.get("REMOTE_ADDR", "unknown")
@@ -905,11 +1043,24 @@ def shared_file_view(request, file_id):
     })
 
 
-# LOGS
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden, HttpResponse
+from django.shortcuts import render
+from django.utils.dateparse import parse_date
+from django.db.models import Q
+from django.contrib.auth.models import User
+
+from siem.utils import audit_log
+from siem.models import AuditLog
+from ztna.utils import log_ztna
+from policy.enforcer import enforce_access
+
+
 @login_required
 def view_logs_page(request):
     ip = request.META.get("REMOTE_ADDR", "")
 
+    # Log ZTNA decision intent (fine)
     log_ztna(
         user=request.user,
         app_name="Logs",
@@ -918,7 +1069,7 @@ def view_logs_page(request):
         reason="view logs",
     )
 
-    # ✅ OPTIONAL BUT RECOMMENDED: ZTNA enforcement before allowing logs
+    # Enforce ZTNA access
     decision = enforce_access(
         user=request.user,
         ip=ip,
@@ -937,63 +1088,89 @@ def view_logs_page(request):
         )
         return HttpResponseForbidden("Denied by ZTNA enforcement")
 
-    # ✅ Import model ONLY where needed for querying (safe + avoids global spam)
-    from siem.models import AuditLog
-
+    # Base queryset
     if request.user.is_superuser:
         logs = AuditLog.objects.all().order_by("-timestamp")
     else:
         logs = AuditLog.objects.filter(user_profile__user=request.user).order_by("-timestamp")
 
-    search = request.GET.get("search")
+    # Hide latency spam by default (keeps UI usable)
+    # If later want to show it, add a dropdown option like "Latency"
+    logs = logs.exclude(action__iexact="request_latency")
+
+    # Filters
+    search = request.GET.get("search", "").strip()
     if search:
         logs = logs.filter(action__icontains=search)
 
-    user_filter = request.GET.get("user")
+    user_filter = request.GET.get("user", "").strip()
     if request.user.is_superuser and user_filter:
         logs = logs.filter(user_profile__user__id=user_filter)
 
-    action_filter = request.GET.get("action")
+    action_filter = request.GET.get("action", "all").strip()
+
+    #  Action dropdown now works reliably (keyword-based mapping)
+    ACTION_MAP = {
+        "Created": ["created", "create", "uploaded", "upload"],
+        "Edited": ["edited", "edit", "updated", "update", "modified", "modify"],
+        "Shared": ["shared", "share", "link generated", "public link"],
+        "Deleted": ["deleted", "delete", "removed", "remove"],
+        "Executed": ["executed", "execute", "run", "command"],
+        "MFA": ["mfa", "otp", "step-up", "verification"],
+    }
+
     if action_filter and action_filter != "all":
-        logs = logs.filter(action__icontains=action_filter)
+        keywords = ACTION_MAP.get(action_filter, [action_filter])
+        q = Q()
+        for k in keywords:
+            q |= Q(action__icontains=k)
+        logs = logs.filter(q)
 
     start = request.GET.get("start_date")
     end = request.GET.get("end_date")
+
     if start:
         logs = logs.filter(timestamp__date__gte=parse_date(start))
     if end:
         logs = logs.filter(timestamp__date__lte=parse_date(end))
 
-    # Export CSV
+    # Export CSV (respects filters)
     if request.GET.get("export") == "csv":
         import csv
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = "attachment; filename=audit_logs.csv"
         writer = csv.writer(response)
         writer.writerow(["User", "Action", "Status", "Timestamp", "PolicyRuleID"])
+
         for l in logs:
             writer.writerow([
-                l.user_profile.user.username,
+                getattr(l.user_profile.user, "username", "unknown"),
                 l.action,
                 l.status,
                 l.timestamp,
                 getattr(l, "policy_rule_id", None),
             ])
+
+        
         return response
 
-   
-    audit_log(
-        user=request.user,
-        action="Viewed audit logs",
-        status="SUCCESS",
-        ip=ip,
-        policy_rule_id=decision.get("policy_rule_id"),
-    )
+    # Prevent spamming "Viewed audit logs" every refresh/filter click
+    # Log it once per session (or every 60s if you want)
+    if not request.session.get("view_logs_logged_once", False):
+        audit_log(
+            user=request.user,
+            action="Viewed audit logs",
+            status="SUCCESS",
+            ip=ip,
+            policy_rule_id=decision.get("policy_rule_id"),
+        )
+        request.session["view_logs_logged_once"] = True
 
     return render(request, "view_logs.html", {
         "logs": logs,
-        "all_users": User.objects.all() if request.user.is_superuser else None
+        "all_users": User.objects.all() if request.user.is_superuser else None,
     })
+
 
 
 
@@ -1120,7 +1297,6 @@ def trust_admin_user_detail(request, profile_id):
     })
 
 
-# FIRE COMMANDS
 @login_required
 def fire_cmds_view(request):
     profile = UserProfile.objects.get(user=request.user)
@@ -1134,19 +1310,35 @@ def fire_cmds_view(request):
         reason="fire commands",
     )
 
-    result = None
+    # --- Enforce runtime ZTNA for this sensitive operation ---
+    decision = enforce_access(
+        user=request.user,
+        ip=ip,
+        protected_link=None,
+        device_score=getattr(request, "device_score", 50),
+        mfa_passed=request.session.get("mfa_passed", False),
+    )
 
-    # --- Admin Override ---
-    if not request.user.is_superuser:
-        ts, _ = TrustScore.objects.get_or_create(user_profile=profile)
-        if ts.overall_trust < 0.60:
-            audit_log(
-                user_profile=profile,
-                action="Denied command execution (trust too low)",
-                status="BLOCKED",
-                ip=ip,
-            )
-            return HttpResponseForbidden("Trust too low to run system commands.")
+    if decision.get("action") == "blocked":
+        audit_log(
+            user_profile=profile,
+            action="Denied command execution (ZTNA blocked)",
+            status="BLOCKED",
+            ip=ip,
+            policy_rule_id=decision.get("policy_rule_id"),
+        )
+        return HttpResponseForbidden("Blocked by ZTNA enforcement")
+
+    stepup_redirect = require_stepup_mfa_if_low_trust(
+        request, profile, "command execution", ip,
+        device_score=getattr(request, "device_score", 50),
+    )
+    if stepup_redirect:
+        return stepup_redirect
+
+
+
+    result = None
 
     if request.method == "POST":
         cmd = request.POST.get("command")
@@ -1197,6 +1389,7 @@ def fire_cmds_view(request):
     return render(request, "fire_cmds.html", {"result": result})
 
 
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from idp.models import UserProfile
@@ -1215,19 +1408,17 @@ def device_trust_report(request):
         ip=ip,
     )
 
+    #  fingerprint set by middleware
     fp = getattr(request, "device_fingerprint", None)
 
-    # ✅ set device_score safely
-    if fp and fp.get("hash"):
-        request.device_score = calculate_device_score(fp["hash"])
-    else:
-        request.device_score = 20
+    #  score set by middleware (single source of truth)
+    score = getattr(request, "device_score", 20)
 
-    # ✅ If no fingerprint, show default report
+    #  If no fingerprint, show default report
     if not fp or not fp.get("hash"):
         return render(request, "device_trust_report.html", {
             "fp_hash": None,
-            "score": 20,
+            "score": score,
             "risk": "Unknown / Unverified Device",
             "risk_color": "text-gray-400",
             "history": [],
@@ -1235,19 +1426,23 @@ def device_trust_report(request):
 
     fp_hash = fp["hash"]
 
-    record, created = DeviceFingerprintRecord.objects.get_or_create(
-        user_profile=profile,
-        fingerprint=fp_hash,
-        defaults={"last_ip": ip}
-    )
-
-    if not created:
+    # Read-only lookup: viewing this report must not itself register a new
+    # device as "known" -- only completing step-up MFA does that (see
+    # stepup_mfa_view). Existing records still get their last-seen/last-ip
+    # refreshed for accurate history display.
+    record = DeviceFingerprintRecord.objects.filter(
+        user_profile=profile, fingerprint=fp_hash
+    ).first()
+    if record:
         record.last_ip = ip
-        record.save(update_fields=["last_ip"])
+        record.last_seen = timezone.now()
+        record.save(update_fields=["last_ip", "last_seen"])
 
-    score = calculate_device_score(fp_hash, debug_mode=False)
-    calculate_device_score(fp_hash, debug_mode=True)
+    #  debug scoring only when requested
+    if request.GET.get("debug") == "1":
+        calculate_device_score(fp_hash, debug_mode=True)
 
+    # risk label from score
     if score >= 80:
         risk = "Low (Safe)"
         color = "text-green-400"

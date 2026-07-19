@@ -86,7 +86,7 @@ class ZTNARequest(models.Model):
             ip=ip,
             protected_link=None,
             device_score=device_score,
-            mfa_passed=request.session.get("mfa_login_passed", False),
+            mfa_passed=mfa_passed,
         )
 
         self.policy_rule_id = decision.get("policy_rule_id")

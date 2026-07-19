@@ -29,7 +29,6 @@ def list_tables(conn):
 
 def list_columns(conn, table):
     cols, rows = q(conn, f"PRAGMA table_info({table});")
-    # PRAGMA table_info returns: cid, name, type, notnull, dflt_value, pk
     return [r[1] for r in rows]
 
 def find_table(tables, contains_any=None, regex_any=None):

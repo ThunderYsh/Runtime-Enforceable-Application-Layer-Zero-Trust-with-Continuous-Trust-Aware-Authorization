@@ -3,7 +3,6 @@ from django.contrib import admin
 from .models import (
     Policy,
     PolicyRule,
-    DeviceRecord,
     ProtectedLink,
     LinkAccessAttempt,
     UserTemporaryBlock,
@@ -18,10 +17,6 @@ class PolicyAdmin(admin.ModelAdmin):
 class PolicyRuleAdmin(admin.ModelAdmin):
     list_display = ("name", "policy", "action", "priority", "enabled")
     list_filter = ("policy", "action", "enabled")
-
-@admin.register(DeviceRecord)
-class DeviceRecordAdmin(admin.ModelAdmin):
-    list_display = ("user", "fingerprint", "device_score", "last_seen")
 
 @admin.register(ProtectedLink)
 class ProtectedLinkAdmin(admin.ModelAdmin):

@@ -45,16 +45,6 @@ class PolicyRule(models.Model):
         return f"{self.policy.name} - {self.name}"
 
 
-class DeviceRecord(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    fingerprint = models.CharField(max_length=256)
-    last_seen = models.DateTimeField(auto_now=True)
-    device_score = models.IntegerField(default=50)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.fingerprint[:10]}"
-
-
 class ProtectedLink(models.Model):
     name = models.CharField(max_length=200)
     resource_path = models.CharField(max_length=500)

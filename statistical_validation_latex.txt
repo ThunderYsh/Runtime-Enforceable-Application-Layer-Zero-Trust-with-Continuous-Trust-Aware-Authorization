@@ -1,0 +1,23 @@
+
+% ── Paste this into Section X (Results) ──────────────────────────────────────
+\subsection{Statistical Validation of Latency Results}
+\label{sec:stat_validation}
+
+To evaluate whether ZTNA enforcement introduces statistically significant
+latency overhead, we applied Welch's independent two-sample $t$-test to
+the measured request latency distributions under baseline and ZTNA-enabled
+configurations ($n=199$ and $n=211$ samples, respectively).
+
+The mean latency under baseline execution was
+$32.91 \pm 5.28$\,ms (95\% CI), compared to
+$33.77 \pm 4.11$\,ms under ZTNA-enabled execution.
+The null hypothesis $H_0$: \emph{the population means are equal} was tested
+using Welch's $t$-test (unequal variances), yielding
+$t = -0.2528$, $df = 379.3$, $p = 0.8004$.
+
+The difference is not statistically significant at $\alpha = 0.05$, confirming that ZTNA enforcement does not introduce a measurable steady-state latency increase for routine request flows.
+
+The effect size, measured by Cohen's $d = -0.0251$, falls within the
+negligible range ($|d| < 0.2$), further confirming that application-layer
+Zero Trust enforcement does not materially degrade request latency for
+normal workloads.
