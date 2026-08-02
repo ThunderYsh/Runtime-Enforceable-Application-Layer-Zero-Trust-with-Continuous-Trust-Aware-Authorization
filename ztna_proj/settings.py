@@ -24,12 +24,28 @@ load_dotenv(BASE_DIR / ".env")
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!7k8k&ab2#k7rkqg*yiep__a8yhhdmwey!#h+dx$*#2eq+gt-y'
+# Read from .env (untracked) so no usable key is committed. The fallback keeps a
+# fresh clone runnable for local development only -- set DJANGO_SECRET_KEY for
+# any real deployment.
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-dev-only-set-DJANGO_SECRET_KEY-in-env",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Defaults to True to preserve existing local-development behaviour; set
+# DJANGO_DEBUG=false to disable.
+DEBUG = os.getenv("DJANGO_DEBUG", "true").lower() != "false"
 
-ALLOWED_HOSTS = []
+# Defaults match what Django implicitly allows when DEBUG=True and
+# ALLOWED_HOSTS is empty, so local runs and the latency harnesses
+# (127.0.0.1:8000) are unaffected. Override via DJANGO_ALLOWED_HOSTS when
+# DEBUG is turned off.
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,[::1]").split(",")
+    if h.strip()
+]
 
 
 # Application definition

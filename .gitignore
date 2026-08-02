@@ -23,6 +23,9 @@ venv/
 .env
 .env.*
 *.env
+# ...but the placeholder template must be tracked so a fresh clone knows
+# which variables to set.
+!.env.example
 
 # -----------------------------
 # Django
@@ -32,6 +35,12 @@ db.sqlite3
 media/
 staticfiles/
 *.sqlite3
+# Database copies/backups. These contain real user rows including plaintext
+# TOTP secrets, so they must never be committed.
+db.sqlite3.*
+*.sqlite3.*
+*.bak
+*.bak-*
 
 # -----------------------------
 # IDE / Editor
