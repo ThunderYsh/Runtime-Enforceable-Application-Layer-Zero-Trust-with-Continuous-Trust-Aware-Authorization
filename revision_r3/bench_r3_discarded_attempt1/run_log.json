@@ -1,0 +1,135 @@
+{
+ "runs": [
+  {
+   "phase": "sequential",
+   "mode": "none",
+   "rep": 0,
+   "start": "2026-10-12 12:52:23.398049",
+   "end": "2026-10-12 14:02:59.907667"
+  },
+  {
+   "phase": "sequential",
+   "mode": "no_middleware",
+   "rep": 0,
+   "start": "2026-10-12 14:03:10.336618",
+   "end": "2026-10-12 14:05:27.485310"
+  },
+  {
+   "phase": "sequential",
+   "mode": "full",
+   "rep": 0,
+   "start": "2026-10-12 14:05:37.294651",
+   "end": "2026-10-12 14:09:41.005462"
+  },
+  {
+   "phase": "sequential",
+   "mode": "full",
+   "rep": 1,
+   "start": "2026-10-12 14:09:55.927452",
+   "end": "2026-10-12 14:14:12.022511"
+  },
+  {
+   "phase": "sequential",
+   "mode": "none",
+   "rep": 1,
+   "start": "2026-10-12 14:14:24.706620",
+   "end": "2026-10-12 14:18:18.507210"
+  },
+  {
+   "phase": "sequential",
+   "mode": "no_middleware",
+   "rep": 1,
+   "start": "2026-10-12 14:18:33.168605",
+   "end": "2026-10-12 14:21:33.175652"
+  },
+  {
+   "phase": "sequential",
+   "mode": "no_middleware",
+   "rep": 2,
+   "start": "2026-10-12 14:21:43.036574",
+   "end": "2026-10-12 14:24:24.142483"
+  },
+  {
+   "phase": "sequential",
+   "mode": "full",
+   "rep": 2,
+   "start": "2026-10-12 14:24:34.199241",
+   "end": "2026-10-12 14:27:17.470487"
+  },
+  {
+   "phase": "sequential",
+   "mode": "none",
+   "rep": 2,
+   "start": "2026-10-12 14:27:26.683109",
+   "end": "2026-10-12 14:30:00.320392"
+  },
+  {
+   "phase": "concurrent",
+   "mode": "full",
+   "rep": 0,
+   "start": "2026-10-12 14:30:22.480957",
+   "end": "2026-10-12 14:37:36.011778",
+   "wall_s": 433.5285666000018,
+   "requests": 1200
+  },
+  {
+   "phase": "concurrent",
+   "mode": "none",
+   "rep": 0,
+   "start": "2026-10-12 14:37:57.182866",
+   "end": "2026-10-12 14:44:42.376399",
+   "wall_s": 405.19126699999833,
+   "requests": 1200
+  },
+  {
+   "phase": "concurrent",
+   "mode": "no_middleware",
+   "rep": 0,
+   "start": "2026-10-12 14:45:04.168743",
+   "end": "2026-10-12 14:52:16.286845",
+   "wall_s": 432.1169875000014,
+   "requests": 1200
+  },
+  {
+   "phase": "concurrent",
+   "mode": "none",
+   "rep": 1,
+   "start": "2026-10-12 14:52:36.709776",
+   "end": "2026-10-12 14:57:02.041536",
+   "wall_s": 265.3301453999993,
+   "requests": 1200
+  },
+  {
+   "phase": "concurrent",
+   "mode": "no_middleware",
+   "rep": 1,
+   "start": "2026-10-12 14:57:21.914867",
+   "end": "2026-10-12 15:03:07.939637",
+   "wall_s": 346.0240999000016,
+   "requests": 1200
+  },
+  {
+   "phase": "concurrent",
+   "mode": "full",
+   "rep": 1,
+   "start": "2026-10-12 15:03:31.309567",
+   "end": "2026-10-12 15:09:18.239235",
+   "wall_s": 346.92890239999906,
+   "requests": 1200
+  }
+ ],
+ "design": {
+  "warmup": 30,
+  "n_seq": 500,
+  "threads": 8,
+  "n_conc": 150,
+  "routes": [
+   "/ztna/dashboard/",
+   "/ztna/trust/analytics/",
+   "/ztna/logs/"
+  ],
+  "server": "django runserver --noreload, DJANGO_DEBUG=false, SQLite",
+  "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+  "device_fp_registered": true
+ }
+}

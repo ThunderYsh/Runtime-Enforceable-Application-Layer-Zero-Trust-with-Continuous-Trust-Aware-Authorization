@@ -10,12 +10,16 @@ EVENT_TYPES = [
     ("blocked", "Blocked by Policy/Admin Restriction"),
     ("link_fail", "Unauthorized Link Access"),
     ("login_success", "Successful Login"),
+    ("night_access", "Night Access Attempt"),
 
     # recovery events
     ("trust_recovery_hourly", "Hourly Trust Recovery"),
     ("trust_recovery_safe", "Safe Action Trust Recovery"),
     ("trust_recovery_mfa", "MFA Trust Recovery"),
+    ("trust_recovery_daily", "Daily Trust Recovery"),
 ]
+
+HOURLY_RECOVERY_INTERVAL_SECONDS = 3600
 
 
 class TrustScore(models.Model):
@@ -85,7 +89,23 @@ class TrustScore(models.Model):
         )
 
     def hourly_recovery(self):
-       
+        """
+        Time-gated: at most one +0.02 increment per hour per user. Previously
+        this fired on every dashboard load, so repeated reloads could farm
+        trust back (JISA R3 audit, defect D3).
+        """
+        from .models import TrustEvent  # safe runtime import
+
+        last = (
+            TrustEvent.objects.filter(
+                user_profile=self.user_profile, event_type="trust_recovery_hourly"
+            )
+            .order_by("-timestamp")
+            .values_list("timestamp", flat=True)
+            .first()
+        )
+        if last and (timezone.now() - last).total_seconds() < HOURLY_RECOVERY_INTERVAL_SECONDS:
+            return
         self._log_recovery("trust_recovery_hourly", 0.02)
 
     def recovery_after_safe_action(self):
@@ -97,15 +117,15 @@ class TrustScore(models.Model):
         self._log_recovery("trust_recovery_mfa", 0.10)
 
     def daily_recovery(self):
-        
+        """
+        +0.05 after >= 24 h without any recovery. Now logged as a TrustEvent
+        like every other recovery; previously it changed trust silently
+        (JISA R3 audit, defect D4).
+        """
         now = timezone.now()
         hours_passed = (now - self.last_recovery).total_seconds() / 3600
         if hours_passed >= 24:
-            new = self._clamp(self.overall_trust + 0.05)
-            if new > self.overall_trust:
-                self.overall_trust = new
-                self.last_recovery = now
-                self.save(update_fields=["overall_trust", "last_recovery"])
+            self._log_recovery("trust_recovery_daily", 0.05)
 
     def __str__(self):
         return f"{self.user_profile.user.username} — Trust {self.overall_trust:.2f}"

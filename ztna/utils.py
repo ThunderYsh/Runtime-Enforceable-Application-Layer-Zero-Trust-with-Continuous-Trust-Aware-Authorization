@@ -32,6 +32,12 @@ def log_ztna(
     - Uses lazy import for ZTNARequest to avoid circular import crash
     """
 
+    from django.conf import settings
+
+    # Benchmark-only: no ZTNA request telemetry in the no-enforcement baseline
+    if not getattr(settings, "ZTNA_VIEW_ENFORCEMENT", True):
+        return None
+
     # ✅ lazy import (break circular import)
     from .models import ZTNARequest
 

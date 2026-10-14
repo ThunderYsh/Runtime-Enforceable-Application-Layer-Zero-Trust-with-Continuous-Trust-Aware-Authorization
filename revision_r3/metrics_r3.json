@@ -1,0 +1,135 @@
+{
+ "window": {
+  "ztnarequest": [
+   "2025-11-28 07:06:35.452679",
+   "2026-07-19 07:17:14.952187"
+  ],
+  "auditlog": [
+   "2025-11-23 14:21:19.772555",
+   "2026-07-19 07:17:14.963086"
+  ],
+  "trustevent": [
+   "2025-11-23 14:58:18.213708",
+   "2026-07-19 07:17:14.910268"
+  ]
+ },
+ "users": {
+  "total": 5,
+  "superuser": 1,
+  "names": [
+   "admin",
+   "ZtnaTest",
+   "abc",
+   "guest",
+   "ztna_bench_user"
+  ]
+ },
+ "ztnarequest": {
+  "total_rows": 647,
+  "by_status": {
+   "APPROVED": 396,
+   "BLOCKED": 2,
+   "ATTEMPT": 248,
+   "DENIED": 1
+  },
+  "policy_decision_rows": 200,
+  "policy_decision_rows_by_status": {
+   "BLOCKED": 2,
+   "DENIED": 1,
+   "APPROVED": 197
+  },
+  "policy_decision_rows_admin_override": 29,
+  "policy_decision_rows_non_admin_by_status": {
+   "BLOCKED": 2,
+   "DENIED": 1,
+   "APPROVED": 168
+  },
+  "access_log_rows": 447,
+  "access_log_rows_by_status_reason": {
+   "APPROVED|File Service|open create file page": 75,
+   "APPROVED|Dashboard|access dashboard": 9,
+   "APPROVED|File Service|open edit file page": 25,
+   "APPROVED|File Service|open share file page": 39,
+   "APPROVED|File Service|fire commands": 5,
+   "APPROVED|Logs|view logs": 44,
+   "ATTEMPT|Dashboard|access dashboard": 248,
+   "APPROVED|File Service|delete file": 2
+  }
+ },
+ "auditlog": {
+  "total_rows": 643,
+  "by_status": {
+   "SUCCESS": 568,
+   "FAILURE": 22,
+   "BLOCKED": 50,
+   "REQUIRE_MFA": 3
+  },
+  "by_category": {
+   "login MFA outcome": 130,
+   "feature action / other": 177,
+   "admin-path block (middleware)": 41,
+   "view-level enforcement denial": 8,
+   "dashboard view": 165,
+   "latency telemetry": 101,
+   "night-access block (middleware)": 1,
+   "step-up challenge issued": 13,
+   "step-up outcome": 7
+  },
+  "admin_path_blocks": 41
+ },
+ "trustevent": {
+  "total_rows": 308,
+  "by_type": {
+   "mfa_fail": 12,
+   "trust_recovery_mfa": 42,
+   "blocked": 71,
+   "trust_recovery_hourly": 82,
+   "trust_recovery_safe": 75,
+   "night_access": 17,
+   "link_fail": 3,
+   "bad_password": 6
+  },
+  "sum_delta_by_type": {
+   "trust_recovery_hourly": 1.6,
+   "trust_recovery_safe": 1.5,
+   "link_fail": -0.21,
+   "mfa_fail": -0.72,
+   "trust_recovery_mfa": 3.4,
+   "blocked": -4.95,
+   "night_access": -0.85,
+   "bad_password": -0.48
+  },
+  "unlogged_changes_between_events": {
+   "0.05": 9,
+   "-0.24": 1
+  }
+ },
+ "stepup": {
+  "triggers_total": 13,
+  "triggers_pre_fix_unlabelled": 10,
+  "triggers_post_fix": 3,
+  "post_fix_by_reason": {
+   "unrecognized device": 1,
+   "low behavioral trust": 1,
+   "low behavioral trust and unrecognized device": 1
+  },
+  "post_fix_time_span": [
+   "2026-07-19 07:17:13.414581",
+   "2026-07-19 07:17:14.856692"
+  ],
+  "successes": 7,
+  "failures": 0,
+  "pre_fix_time_span": [
+   "2026-02-01 06:56:12.132878",
+   "2026-02-01 07:03:42.718530"
+  ]
+ },
+ "devices": {
+  "records": 22,
+  "records_created_by_post_fix_stepup_path": 2
+ },
+ "policies": {
+  "policies_active": 2,
+  "rules_enabled": 4
+ }
+}

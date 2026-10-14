@@ -1,0 +1,19 @@
+{
+ "source_db": "ztna_proj/db.sqlite3",
+ "source_sha256": "d57b18f611442556f22a58285d24fcedc93a0f785f91973031e85aa520859683",
+ "snapshot": "snapshot_r2_20260719.sqlite3",
+ "snapshot_sha256": "327ed38a1e911c2cdfcac44b1894583a1b0f8715437d9da11e3579e247da70df",
+ "cutoff_utc_exclusive": "2026-07-19 07:17:15",
+ "rows_removed_from_copy": {
+  "ztna_ztnarequest": 8,
+  "siem_auditlog": 27,
+  "trustbroker_trustevent": 6,
+  "policy_devicefingerprintrecord": 1,
+  "policy_linkaccessattempt": 0
+ },
+ "reproduces_r2_totals": {
+  "ztnarequest==647": true,
+  "auditlog==643": true,
+  "trustevent==308": true
+ }
+}

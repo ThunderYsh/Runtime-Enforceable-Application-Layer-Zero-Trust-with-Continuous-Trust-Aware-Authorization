@@ -1,0 +1,3 @@
+{"none": {"/ztna/dashboard/": {"status": 200, "statements": 9, "INSERT": 2, "UPDATE": 0, "SELECT": 5}, "/ztna/trust/analytics/": {"status": 200, "statements": 12, "INSERT": 2, "UPDATE": 0, "SELECT": 8}}}
+{"no_middleware": {"/ztna/dashboard/": {"status": 200, "statements": 23, "INSERT": 4, "UPDATE": 0, "SELECT": 17}, "/ztna/trust/analytics/": {"status": 200, "statements": 20, "INSERT": 3, "UPDATE": 0, "SELECT": 15}}}
+{"full": {"/ztna/dashboard/": {"status": 200, "statements": 25, "INSERT": 4, "UPDATE": 0, "SELECT": 19}, "/ztna/trust/analytics/": {"status": 200, "statements": 28, "INSERT": 3, "UPDATE": 0, "SELECT": 21}}}

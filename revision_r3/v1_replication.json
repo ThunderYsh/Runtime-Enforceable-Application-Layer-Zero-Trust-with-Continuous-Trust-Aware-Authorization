@@ -1,0 +1,122 @@
+{
+  "reproduction": [
+    {
+      "alpha": 0.03,
+      "mfa_triggers": 545,
+      "restrict_hits": 545,
+      "block": 122,
+      "fp": 0.0,
+      "matches_published": true,
+      "triggers_identical_to_restrict_hits": true
+    },
+    {
+      "alpha": 0.06,
+      "mfa_triggers": 610,
+      "restrict_hits": 610,
+      "block": 156,
+      "fp": 0.0,
+      "matches_published": true,
+      "triggers_identical_to_restrict_hits": true
+    },
+    {
+      "alpha": 0.1,
+      "mfa_triggers": 588,
+      "restrict_hits": 588,
+      "block": 342,
+      "fp": 0.0,
+      "matches_published": true,
+      "triggers_identical_to_restrict_hits": true
+    },
+    {
+      "alpha": 0.15,
+      "mfa_triggers": 579,
+      "restrict_hits": 579,
+      "block": 526,
+      "fp": 0.0,
+      "matches_published": true,
+      "triggers_identical_to_restrict_hits": true
+    }
+  ],
+  "benign_event_types": [
+    "idle",
+    "mfa_success",
+    "safe_action"
+  ],
+  "benign_has_penalty_event": false,
+  "crn_seed42": {
+    "0.03": {
+      "normal": 3333,
+      "restrict_band": 545,
+      "block_band": 122,
+      "adv_sessions_reaching_block": 22,
+      "adv_sessions_below_060": 54,
+      "benign_sessions_below_060": 0,
+      "below_060_total": 667
+    },
+    "0.06": {
+      "normal": 3174,
+      "restrict_band": 587,
+      "block_band": 239,
+      "adv_sessions_reaching_block": 38,
+      "adv_sessions_below_060": 62,
+      "benign_sessions_below_060": 0,
+      "below_060_total": 826
+    },
+    "0.1": {
+      "normal": 3015,
+      "restrict_band": 567,
+      "block_band": 418,
+      "adv_sessions_reaching_block": 49,
+      "adv_sessions_below_060": 66,
+      "benign_sessions_below_060": 0,
+      "below_060_total": 985
+    },
+    "0.15": {
+      "normal": 2905,
+      "restrict_band": 515,
+      "block_band": 580,
+      "adv_sessions_reaching_block": 56,
+      "adv_sessions_below_060": 68,
+      "benign_sessions_below_060": 0,
+      "below_060_total": 1095
+    }
+  },
+  "crn_mean_over_50_seeds": {
+    "0.03": {
+      "normal": 3376.32,
+      "restrict_band": 548.76,
+      "block_band": 74.92,
+      "adv_sessions_reaching_block": 15.28,
+      "adv_sessions_below_060": 56.88,
+      "benign_sessions_below_060": 0.0,
+      "below_060_total": 623.68
+    },
+    "0.06": {
+      "normal": 3200.36,
+      "restrict_band": 631.1,
+      "block_band": 168.54,
+      "adv_sessions_reaching_block": 29.18,
+      "adv_sessions_below_060": 63.2,
+      "benign_sessions_below_060": 0.0,
+      "below_060_total": 799.64
+    },
+    "0.1": {
+      "normal": 3045.84,
+      "restrict_band": 612.76,
+      "block_band": 341.4,
+      "adv_sessions_reaching_block": 45.48,
+      "adv_sessions_below_060": 67.18,
+      "benign_sessions_below_060": 0.0,
+      "below_060_total": 954.16
+    },
+    "0.15": {
+      "normal": 2942.04,
+      "restrict_band": 523.22,
+      "block_band": 534.74,
+      "adv_sessions_reaching_block": 57.46,
+      "adv_sessions_below_060": 68.82,
+      "benign_sessions_below_060": 0.0,
+      "below_060_total": 1057.96
+    }
+  }
+}

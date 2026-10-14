@@ -226,6 +226,20 @@ def enforce_access(
         - blocked
     """
 
+    # Benchmark-only: true no-enforcement baseline (settings.ZTNA_BENCH_MODE="none")
+    if not getattr(settings, "ZTNA_VIEW_ENFORCEMENT", True):
+        return {
+            "allowed": True,
+            "action": "allow",
+            "reason": "bench_no_enforcement",
+            "policy_rule_id": None,
+            "dashboard_trust": 100,
+            "trust_score": 100,
+            "policy_flags": {},
+            "notes": ["bench_no_enforcement"],
+            "block_record": None,
+        }
+
     # ----------------------------------------------------------------
     # 0) ADMIN OVERRIDE (NEVER BLOCKED)
     # ----------------------------------------------------------------

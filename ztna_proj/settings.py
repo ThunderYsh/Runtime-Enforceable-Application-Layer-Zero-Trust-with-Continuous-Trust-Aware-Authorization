@@ -67,6 +67,11 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    # Outermost, so the measured server-side latency includes every ZTNA
+    # middleware below (in R2 it sat after DeviceFingerprintMiddleware, so the
+    # device lookup was not timed). request.user is resolved by the time its
+    # process_response runs.
+    'ztna_proj.latency.RequestLatencyMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -75,7 +80,6 @@ MIDDLEWARE = [
     # Runs after AuthenticationMiddleware because device scoring looks up
     # per-user DeviceFingerprintRecord history (request.user must be resolved).
     'ztna.device_fingerprint_middleware.DeviceFingerprintMiddleware',
-    'ztna_proj.latency.RequestLatencyMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'ztna_proj.middleware.admin_only_middleware',
@@ -83,12 +87,25 @@ MIDDLEWARE = [
     'policy.middleware_enforcer.PolicyEnforcementMiddleware',
 ]
 
-# Set to False to disable ZTNA-specific enforcement middleware (device scoring,
-# night-access policy, policy enforcement) for a controlled baseline latency
-# capture. See README/paper Section VIII for how this is used.
-ZTNA_ENFORCEMENT_ENABLED = os.getenv("ZTNA_ENFORCEMENT_ENABLED", "true").lower() != "false"
+# Benchmark-only switch (JISA R3 latency re-run). Never set in deployment.
+#   full          - complete ZTNA stack (default)
+#   no_middleware - R2 "baseline": the three ZTNA middlewares removed, but views
+#                   still call enforce_access()/log_ztna() and TrustBroker recovery
+#   none          - true no-enforcement baseline: middlewares removed AND
+#                   enforce_access() returns allow immediately, log_ztna() is a
+#                   no-op and dashboard trust recovery is skipped
+# ZTNA_ENFORCEMENT_ENABLED=false is kept as an alias for no_middleware.
+ZTNA_BENCH_MODE = os.getenv("ZTNA_BENCH_MODE", "").strip().lower()
+if not ZTNA_BENCH_MODE:
+    ZTNA_BENCH_MODE = (
+        "full" if os.getenv("ZTNA_ENFORCEMENT_ENABLED", "true").lower() != "false" else "no_middleware"
+    )
+if ZTNA_BENCH_MODE not in ("full", "no_middleware", "none"):
+    raise ValueError(f"Unknown ZTNA_BENCH_MODE={ZTNA_BENCH_MODE!r}")
+ZTNA_ENFORCEMENT_ENABLED = ZTNA_BENCH_MODE == "full"
+ZTNA_VIEW_ENFORCEMENT = ZTNA_BENCH_MODE != "none"
 
-if not ZTNA_ENFORCEMENT_ENABLED:
+if ZTNA_BENCH_MODE != "full":
     MIDDLEWARE = [
         m for m in MIDDLEWARE
         if m not in (
@@ -128,7 +145,9 @@ WSGI_APPLICATION = 'ztna_proj.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # ZTNA_DB_PATH lets the latency benchmark run against a copy so the
+        # frozen evaluation data in db.sqlite3 is never written to.
+        'NAME': os.getenv("ZTNA_DB_PATH") or (BASE_DIR / 'db.sqlite3'),
     }
 }
 
@@ -185,6 +204,8 @@ EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+# Sender of file-share notifications; defaults to the SMTP account.
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "webmaster@localhost")
 
 
 STATIC_URL = "static/"

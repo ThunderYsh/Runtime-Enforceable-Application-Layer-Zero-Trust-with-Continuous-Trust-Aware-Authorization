@@ -1,0 +1,3142 @@
+{
+ "assumptions": {
+  "sessions_per_replication": 200,
+  "benign": 130,
+  "adversarial": 70,
+  "actions_per_session": 30,
+  "replications": 100,
+  "base_seed": 20261012,
+  "stepup_window_actions": 5,
+  "max_totp_attempts_per_challenge": 3,
+  "max_login_attempts": 5,
+  "benign_action_mix": {
+   "dashboard": 0.35,
+   "read": 0.35,
+   "sensitive": 0.25,
+   "shared_link": 0.05
+  },
+  "adversary_model": "post-authentication session hijacker (valid session cookie, no TOTP factor); never passes a step-up challenge; device gate assumed bypassed",
+  "adversary_action_mix": {
+   "dashboard": 0.15,
+   "read": 0.25,
+   "sensitive": 0.3,
+   "link_probe": 0.15,
+   "admin_probe": 0.15
+  },
+  "benign_error_rates_epsilon": [
+   0.0,
+   0.05,
+   0.1,
+   0.2
+  ],
+  "epsilon_applies_to": "each password entry, each TOTP entry (mistyped), and each shared-link access (expired / not shared with the user -> link_fail, as in ztna/views.py shared_file_view)",
+  "initial_trust_T0": [
+   1.0,
+   0.7
+  ],
+  "T0_note": "1.0 = TrustScore model default for a new account; 0.7 = degraded start used in R2"
+ },
+ "implementation_constants": {
+  "penalties": {
+   "bad_password": 0.08,
+   "blocked": 0.1,
+   "link_fail": 0.07,
+   "night_access": 0.05
+  },
+  "mfa_fail": "alpha",
+  "recovery": {
+   "hourly": 0.02,
+   "safe": 0.02,
+   "mfa": 0.1
+  },
+  "stepup_threshold_strict_lt": 0.6
+ },
+ "analytic_min_consecutive_login_totp_typos_to_restrict": {
+  "T0=1.0": {
+   "alpha=0.03": 17,
+   "alpha=0.06": 9,
+   "alpha=0.1": 6,
+   "alpha=0.15": 4
+  },
+  "T0=0.7": {
+   "alpha=0.03": 7,
+   "alpha=0.06": 4,
+   "alpha=0.1": 3,
+   "alpha=0.15": 2
+  }
+ },
+ "results": [
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.0,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99605389556726,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.23059285714285715,
+     "lo95": 0.16629642857142857,
+     "hi95": 0.29904285714285717
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.0,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.19091142857142857,
+     "lo95": 0.13165357142857143,
+     "hi95": 0.25744285714285714
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.0,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.17338571428571428,
+     "lo95": 0.11961071428571429,
+     "hi95": 0.23691428571428563
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.0,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.16391,
+     "lo95": 0.1104,
+     "hi95": 0.22804642857142854
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.05,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99605389556726,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.23059285714285715,
+     "lo95": 0.16629642857142857,
+     "hi95": 0.29904285714285717
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.05,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.19091142857142857,
+     "lo95": 0.13165357142857143,
+     "hi95": 0.25744285714285714
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.05,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.17338571428571428,
+     "lo95": 0.11961071428571429,
+     "hi95": 0.23691428571428563
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.05,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 7.692307692307693e-05,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0010330578512396695,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.16391,
+     "lo95": 0.1104,
+     "hi95": 0.22804642857142854
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.1,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99605389556726,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.23059285714285715,
+     "lo95": 0.16629642857142857,
+     "hi95": 0.29904285714285717
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.1,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.19091142857142857,
+     "lo95": 0.13165357142857143,
+     "hi95": 0.25744285714285714
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.1,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.17338571428571428,
+     "lo95": 0.11961071428571429,
+     "hi95": 0.23691428571428563
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.1,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0003846153846153846,
+     "lo95": 0.0,
+     "hi95": 0.007692307692307693
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.006219415587572671,
+     "lo95": 0.0,
+     "hi95": 0.10387191808002208
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.16391,
+     "lo95": 0.1104,
+     "hi95": 0.22804642857142854
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.2,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99605389556726,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.23059285714285715,
+     "lo95": 0.16629642857142857,
+     "hi95": 0.29904285714285717
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.2,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.19091142857142857,
+     "lo95": 0.13165357142857143,
+     "hi95": 0.25744285714285714
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.2,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0006923076923076924,
+     "lo95": 0.0,
+     "hi95": 0.007692307692307693
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.009162916687104956,
+     "lo95": 0.0,
+     "hi95": 0.10412669610667777
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.17338571428571428,
+     "lo95": 0.11961071428571429,
+     "hi95": 0.23691428571428563
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 1.0,
+   "epsilon": 0.2,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.003230769230769231,
+     "lo95": 0.0,
+     "hi95": 0.015384615384615385
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.059367725414166475,
+     "lo95": 0.0,
+     "hi95": 0.35164108696763463
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.7387142857142857,
+     "lo95": 0.6428571428571429,
+     "hi95": 0.8217857142857142
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 67.99007448832404,
+     "lo95": 60.00755862620407,
+     "hi95": 75.49349650300296
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.55,
+     "lo95": 18.0,
+     "hi95": 23.262499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.16391,
+     "lo95": 0.1104,
+     "hi95": 0.22804642857142854
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.0,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.80034327737403,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.02654857142857143,
+     "lo95": 0.010414285714285714,
+     "hi95": 0.05510357142857142
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.0,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.018272857142857143,
+     "lo95": 0.0007821428571428571,
+     "hi95": 0.04618571428571427
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.0,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.015454285714285714,
+     "lo95": 0.0,
+     "hi95": 0.042003571428571404
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.0,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.014095714285714286,
+     "lo95": 0.0,
+     "hi95": 0.04002499999999996
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.05,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 7.692307692307693e-05,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0010030090270812437,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.80034327737403,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.02654857142857143,
+     "lo95": 0.010414285714285714,
+     "hi95": 0.05510357142857142
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.05,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0002307692307692308,
+     "lo95": 0.0,
+     "hi95": 0.0040384615384614735
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0030492381042580966,
+     "lo95": 0.0,
+     "hi95": 0.05265797392176444
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.018272857142857143,
+     "lo95": 0.0007821428571428571,
+     "hi95": 0.04618571428571427
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.05,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0003846153846153846,
+     "lo95": 0.0,
+     "hi95": 0.007692307692307693
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.006095129539676692,
+     "lo95": 0.0,
+     "hi95": 0.1008344181480612
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.015454285714285714,
+     "lo95": 0.0,
+     "hi95": 0.042003571428571404
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.05,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.003307692307692308,
+     "lo95": 0.0,
+     "hi95": 0.015384615384615385
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.04812240347596087,
+     "lo95": 0.0,
+     "hi95": 0.21109903158326224
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.014095714285714286,
+     "lo95": 0.0,
+     "hi95": 0.04002499999999996
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.1,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0006923076923076924,
+     "lo95": 0.0,
+     "hi95": 0.007692307692307693
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.009354337943399002,
+     "lo95": 0.0,
+     "hi95": 0.10523504864793065
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.80034327737403,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.02654857142857143,
+     "lo95": 0.010414285714285714,
+     "hi95": 0.05510357142857142
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.1,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0013076923076923077,
+     "lo95": 0.0,
+     "hi95": 0.011730769230769166
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.01863501281194809,
+     "lo95": 0.0,
+     "hi95": 0.15905680387963195
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.018272857142857143,
+     "lo95": 0.0007821428571428571,
+     "hi95": 0.04618571428571427
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.1,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.003,
+     "lo95": 0.0,
+     "hi95": 0.015384615384615385
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.04330289902018737,
+     "lo95": 0.0,
+     "hi95": 0.21153394409208362
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.015454285714285714,
+     "lo95": 0.0,
+     "hi95": 0.042003571428571404
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.1,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.01576923076923077,
+     "lo95": 0.0,
+     "hi95": 0.03076923076923077
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.23634413558033257,
+     "lo95": 0.0,
+     "hi95": 0.6058692581018023
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.001049317943336831,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.014095714285714286,
+     "lo95": 0.0,
+     "hi95": 0.04002499999999996
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.2,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.007153846153846154,
+     "lo95": 0.0,
+     "hi95": 0.03076923076923077
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.09971375603639851,
+     "lo95": 0.0,
+     "hi95": 0.4058089479651018
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.80034327737403,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.02654857142857143,
+     "lo95": 0.010414285714285714,
+     "hi95": 0.05510357142857142
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.2,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.011230769230769232,
+     "lo95": 0.0,
+     "hi95": 0.03076923076923077
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.1623224062983076,
+     "lo95": 0.0,
+     "hi95": 0.5185355392156863
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.018272857142857143,
+     "lo95": 0.0007821428571428571,
+     "hi95": 0.04618571428571427
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.2,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.021692307692307695,
+     "lo95": 0.0,
+     "hi95": 0.046153846153846156
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.3524561349384875,
+     "lo95": 0.0,
+     "hi95": 0.8402777777777777
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0010416666666666667,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.015454285714285714,
+     "lo95": 0.0,
+     "hi95": 0.042003571428571404
+    }
+   }
+  },
+  {
+   "recovery": "as evaluated (per dashboard load)",
+   "T0": 0.7,
+   "epsilon": 0.2,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.05923076923076923,
+     "lo95": 0.023076923076923078,
+     "hi95": 0.09230769230769231
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 1.0903021457772863,
+     "lo95": 0.42235795962122563,
+     "hi95": 1.859602165581848
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.011361437672255562,
+     "lo95": 0.0,
+     "hi95": 0.1052808282852682
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9744285714285714,
+     "lo95": 0.9285714285714286,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 27.771260670438608,
+     "lo95": 21.644410062743002,
+     "hi95": 32.7667598600604
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.84,
+     "lo95": 8.0,
+     "hi95": 11.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.014095714285714286,
+     "lo95": 0.0,
+     "hi95": 0.04002499999999996
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.0,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.17193142857142857,
+     "lo95": 0.11827142857142857,
+     "hi95": 0.2305785714285714
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.0,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.13376142857142856,
+     "lo95": 0.089925,
+     "hi95": 0.19174999999999995
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.0,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.11703285714285715,
+     "lo95": 0.07368214285714286,
+     "hi95": 0.17456428571428562
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.0,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.10843142857142857,
+     "lo95": 0.06542857142857143,
+     "hi95": 0.16727142857142852
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.05,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.17193142857142857,
+     "lo95": 0.11827142857142857,
+     "hi95": 0.2305785714285714
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.05,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.13376142857142856,
+     "lo95": 0.089925,
+     "hi95": 0.19174999999999995
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.05,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.11703285714285715,
+     "lo95": 0.07368214285714286,
+     "hi95": 0.17456428571428562
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.05,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 7.692307692307693e-05,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.002066115702479339,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.10843142857142857,
+     "lo95": 0.06542857142857143,
+     "hi95": 0.16727142857142852
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.1,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.17193142857142857,
+     "lo95": 0.11827142857142857,
+     "hi95": 0.2305785714285714
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.1,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.13376142857142856,
+     "lo95": 0.089925,
+     "hi95": 0.19174999999999995
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.1,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.11703285714285715,
+     "lo95": 0.07368214285714286,
+     "hi95": 0.17456428571428562
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.1,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0004615384615384616,
+     "lo95": 0.0,
+     "hi95": 0.007692307692307693
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.009329890107546356,
+     "lo95": 0.0,
+     "hi95": 0.15746371475401966
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.10843142857142857,
+     "lo95": 0.06542857142857143,
+     "hi95": 0.16727142857142852
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.2,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.17193142857142857,
+     "lo95": 0.11827142857142857,
+     "hi95": 0.2305785714285714
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.2,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.13376142857142856,
+     "lo95": 0.089925,
+     "hi95": 0.19174999999999995
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.2,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0008461538461538462,
+     "lo95": 0.0,
+     "hi95": 0.007692307692307693
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.011232399048862892,
+     "lo95": 0.0,
+     "hi95": 0.104704772795983
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.11703285714285715,
+     "lo95": 0.07368214285714286,
+     "hi95": 0.17456428571428562
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 1.0,
+   "epsilon": 0.2,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0034615384615384616,
+     "lo95": 0.0,
+     "hi95": 0.015384615384615385
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.06959889474160964,
+     "lo95": 0.0,
+     "hi95": 0.35327182403166724
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.8187142857142857,
+     "lo95": 0.7353571428571428,
+     "hi95": 0.8857142857142857
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 64.05074910820687,
+     "lo95": 56.35117478986935,
+     "hi95": 70.51016692908829
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 20.245,
+     "lo95": 18.0,
+     "hi95": 22.762499999999996
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.10843142857142857,
+     "lo95": 0.06542857142857143,
+     "hi95": 0.16727142857142852
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.0,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.01213,
+     "lo95": 0.0014892857142857143,
+     "hi95": 0.03435357142857138
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.0,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.007711428571428571,
+     "lo95": 0.0,
+     "hi95": 0.024471428571428557
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.0,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.006285714285714286,
+     "lo95": 0.0,
+     "hi95": 0.02124642857142856
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.0,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.005572857142857143,
+     "lo95": 0.0,
+     "hi95": 0.018653571428571426
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.05,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 7.692307692307693e-05,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0010030090270812437,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.01213,
+     "lo95": 0.0014892857142857143,
+     "hi95": 0.03435357142857138
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.05,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0002307692307692308,
+     "lo95": 0.0,
+     "hi95": 0.0040384615384614735
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0030492381042580966,
+     "lo95": 0.0,
+     "hi95": 0.05265797392176444
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.007711428571428571,
+     "lo95": 0.0,
+     "hi95": 0.024471428571428557
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.05,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0003846153846153846,
+     "lo95": 0.0,
+     "hi95": 0.007692307692307693
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.006095129539676692,
+     "lo95": 0.0,
+     "hi95": 0.1008344181480612
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.006285714285714286,
+     "lo95": 0.0,
+     "hi95": 0.02124642857142856
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.05,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0037692307692307695,
+     "lo95": 0.0,
+     "hi95": 0.015384615384615385
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.054208365289460936,
+     "lo95": 0.0,
+     "hi95": 0.21109903158326224
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 16.20769230769231,
+     "lo95": 10.0,
+     "hi95": 22.307692307692307
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.005572857142857143,
+     "lo95": 0.0,
+     "hi95": 0.018653571428571426
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.1,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0007692307692307692,
+     "lo95": 0.0,
+     "hi95": 0.007692307692307693
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.010347386602783311,
+     "lo95": 0.0,
+     "hi95": 0.10523504864793065
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.01213,
+     "lo95": 0.0014892857142857143,
+     "hi95": 0.03435357142857138
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.1,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.0013846153846153847,
+     "lo95": 0.0,
+     "hi95": 0.011730769230769166
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.0196280614713324,
+     "lo95": 0.0,
+     "hi95": 0.15905680387963195
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.007711428571428571,
+     "lo95": 0.0,
+     "hi95": 0.024471428571428557
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.1,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.003230769230769231,
+     "lo95": 0.0,
+     "hi95": 0.015384615384615385
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.04739345933293264,
+     "lo95": 0.0,
+     "hi95": 0.21153394409208362
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.006285714285714286,
+     "lo95": 0.0,
+     "hi95": 0.02124642857142856
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.1,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.016692307692307694,
+     "lo95": 0.0,
+     "hi95": 0.038461538461538464
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.2702912657652239,
+     "lo95": 0.0,
+     "hi95": 0.6695249927894742
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.001049317943336831,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 30.407692307692308,
+     "lo95": 22.673076923076923,
+     "hi95": 37.69230769230769
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.005572857142857143,
+     "lo95": 0.0,
+     "hi95": 0.018653571428571426
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.2,
+   "alpha": 0.03,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.00776923076923077,
+     "lo95": 0.0,
+     "hi95": 0.03076923076923077
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.11188462719933635,
+     "lo95": 0.0,
+     "hi95": 0.4058089479651018
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.01213,
+     "lo95": 0.0014892857142857143,
+     "hi95": 0.03435357142857138
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.2,
+   "alpha": 0.06,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.012076923076923077,
+     "lo95": 0.0,
+     "hi95": 0.03076923076923077
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.1828875803976408,
+     "lo95": 0.0,
+     "hi95": 0.5185355392156863
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.007711428571428571,
+     "lo95": 0.0,
+     "hi95": 0.024471428571428557
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.2,
+   "alpha": 0.1,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.024615384615384615,
+     "lo95": 0.0036538461538461547,
+     "hi95": 0.05019230769230763
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 0.4334171334773251,
+     "lo95": 0.04536771728748807,
+     "hi95": 1.0445298865619546
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.0010416666666666667,
+     "lo95": 0.0,
+     "hi95": 0.0
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.006285714285714286,
+     "lo95": 0.0,
+     "hi95": 0.02124642857142856
+    }
+   }
+  },
+  {
+   "recovery": "hourly-gated (corrected)",
+   "T0": 0.7,
+   "epsilon": 0.2,
+   "alpha": 0.15,
+   "metrics": {
+    "benign_session_fpr": {
+     "mean": 0.06376923076923077,
+     "lo95": 0.02673076923076923,
+     "hi95": 0.1076923076923077
+    },
+    "benign_challenges_per_100_sensitive": {
+     "mean": 1.3541832594065921,
+     "lo95": 0.518426724137931,
+     "hi95": 2.350912575732142
+    },
+    "benign_sensitive_denied_pct": {
+     "mean": 0.012408558091103729,
+     "lo95": 0.0,
+     "hi95": 0.1052808282852682
+    },
+    "benign_sessions_with_failure_pct": {
+     "mean": 52.65384615384615,
+     "lo95": 46.15384615384615,
+     "hi95": 60.0
+    },
+    "adv_session_tpr": {
+     "mean": 0.9887142857142858,
+     "lo95": 0.9639285714285715,
+     "hi95": 1.0
+    },
+    "adv_sensitive_completed_pct": {
+     "mean": 25.149535412728937,
+     "lo95": 19.655634936864168,
+     "hi95": 29.79516356285224
+    },
+    "adv_median_actions_to_first_challenge": {
+     "mean": 9.5,
+     "lo95": 8.0,
+     "hi95": 11.0
+    },
+    "adv_mean_min_trust": {
+     "mean": 0.005572857142857143,
+     "lo95": 0.0,
+     "hi95": 0.018653571428571426
+    }
+   }
+  }
+ ]
+}

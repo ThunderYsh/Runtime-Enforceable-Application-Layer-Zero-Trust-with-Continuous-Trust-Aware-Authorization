@@ -73,3 +73,36 @@ Thumbs.db
 
 *.xlsx
 *.pdf
+
+# -----------------------------
+# Paper / presentation / image artifacts (kept local, not pushed)
+# -----------------------------
+docs/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.svg
+*.eps
+*.md
+*.tex
+*.docx
+*.ppt
+*.pptx
+*.zip
+*.txt
+# ...but keep files the repo itself needs
+!README.md
+!requirements.txt
+
+# -----------------------------
+# Not part of the JISA artifact
+# -----------------------------
+# Manuscript-editing helpers (they read the local .tex files, which are not pushed)
+revision_r3/check_tex.py
+revision_r3/check_macros.py
+revision_r3/list_numbering.py
+# Conference (ICIDS) slide and figure tooling
+plots/make_slide_*.py
+plots/convert_architecture_figure.py
+plots/export_paper_figures.py

@@ -4,6 +4,7 @@ import io, base64, qrcode, subprocess, psutil
 from io import BytesIO
 import pyotp
 
+from django.conf import settings
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
@@ -455,8 +456,9 @@ def dashboard(request):
     # 5) Behavioral trust (analytics only)
     # -------------------------------------------------
     ts, _ = TrustScore.objects.get_or_create(user_profile=profile)
-    ts.hourly_recovery()
-    ts.recovery_after_safe_action()
+    if getattr(settings, "ZTNA_VIEW_ENFORCEMENT", True):  # skipped only in the no-enforcement benchmark
+        ts.hourly_recovery()
+        ts.recovery_after_safe_action()
 
     behavioral_trust = round(ts.overall_trust, 3)
 
@@ -972,7 +974,7 @@ You must ask the sender for the password.
         send_mail(
             subject=f"File Shared With You: {f.name}",
             message=email_body,
-            from_email="bholeyash2002@gmail.com",
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=recipients,
             fail_silently=False,
         )
